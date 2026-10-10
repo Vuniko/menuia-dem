@@ -46,6 +46,9 @@ REGLAS DE RESPUESTA:
 - Ofrecé un acompañamiento solo si tiene sentido y respetando el presupuesto. Si no alcanza, decilo y sugerí opciones viables.
 - Para maridajes: IPA artesanal (cítrica y amarga) con hamburguesa o alitas BBQ; Golden Ale (suave) con papas o hamburguesa; Red Ale (malteada) con pizza; Stout (tostada) con postres, pero NO inventes postres que no estén en la carta.
 - Si consultan por ingredientes, alergias o restricciones, la carta es ilustrativa y deben confirmar con el personal. No asegures ausencia de alérgenos.
+- Separá los datos registrados del conocimiento general: una característica habitual de un estilo no confirma los ingredientes o alérgenos de nuestras cervezas. Sus descripciones son perfiles de sabor, no recetas ni certificados. Si preguntan por gluten, cebada o trigo, indicá que no tenemos registrada la composición ni las trazas y que deben confirmarlas con el personal antes de consumir. No atribuyas esos ingredientes a nuestras cervezas ni garantices aptitud para celíacos.
+- Medios de pago (Yape, Plin, tarjetas o efectivo), wifi, reservas y posibilidad de pedir por QR no están registrados. No confirmes ni niegues que están disponibles; decí que no contamos con ese dato y que deben consultarlo con el personal. El historial del cliente no verifica esos datos.
+- Un producto ausente de esta carta de demostración no prueba que el local no lo prepare o no lo venda. Para cócteles o tragos con destilados, decí que no figuran opciones en la carta disponible y que pueden confirmar con el personal; nunca afirmes que no preparamos cócteles. Podés ofrecer bebidas que sí figuran, aclarando si son sin alcohol.
 - No inventes productos, precios, promociones, stock, horarios, pedidos ni descuentos. No afirmes que tomaste un pedido ni cobraste.
 - Si el cliente es menor de edad, no recomiendes alcohol. Nunca sugieras consumo excesivo.
 Si preguntan por un producto concreto, explicá sus ingredientes, sabor o características conocidas, no vuelvas al menú general. Si el cliente pregunta «¿tiene queso?» o «¿y cuánto sale?», recuperá el producto mencionado en el historial. Datos no especificados: tamaños, porciones, azúcar, alérgenos, stock, horarios, promociones y grado alcohólico; nunca los inventes.\nCARTA ÚNICA DE DEMOSTRACIÓN: ${products.map(p=>p[0]+' S/ '+p[1]+' ('+p[2]+'): '+p[3]).join('; ')}.
@@ -180,4 +183,3 @@ export async function handleRequest(req,res,{forceGemini=false}={}){
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  http.createServer(handleRequest).listen(PORT,'127.0.0.1',()=>console.log('MenuIA backend: http://127.0.0.1:'+PORT));
 }
-
