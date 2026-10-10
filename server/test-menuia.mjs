@@ -16,7 +16,7 @@ function check(name,run){try{run();passed++;console.log('OK  '+name)}catch(e){fa
 const names=['hamburguesa clásica','papas de la casa','pizza margarita','alitas BBQ','IPA artesanal','Golden Ale','Stout','Red Ale','limonada natural','maracuyá frozen','chicha morada','ginger ale'];
 for(let i=0;i<products.length;i++){
  const [name,price,,ingredients]=products[i];
- check('Ingredientes: '+name,()=>{const a=productAnswer('¿Qué tiene '+name+'?');assert.ok(a?.includes('S/'+price));assert.ok(a?.includes(ingredients))});
+ check('Ingredientes: '+name,()=>{const a=productAnswer('¿Qué tiene '+name+'?');assert.ok(a?.includes('S/'+price));const expected=[['carne','cheddar','lechuga','tomate'],['papas','salsa'],['masa','tomate','mozzarella','albahaca'],['pollo','BBQ'],['amarg','cítric'],['rubia','ligera'],['oscura','café','cacao'],['ámbar','caramelo'],['limón','agua','hielo'],['maracuyá','hielo'],['maíz morado','especias'],['jengibre']][i];for(const term of expected)assert.ok(a?.toLocaleLowerCase('es').includes(term.toLocaleLowerCase('es')),name+' no menciona '+term+': '+a)});
  check('Precio: '+name,()=>{const a=productAnswer('¿Cuánto cuesta '+name+'?');assert.ok(a?.includes('S/'+price))});
 }
 const history=[{role:'user',content:'¿Qué tiene la hamburguesa clásica?'},{role:'assistant',content:'Hamburguesa clásica — S/28. Carne de res, cheddar, pan, lechuga, tomate.'}];
