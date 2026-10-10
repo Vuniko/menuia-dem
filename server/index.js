@@ -2,6 +2,32 @@ import http from 'node:http';
 const PORT=Number(process.env.PORT||8787);
 const OLLAMA_URL=process.env.OLLAMA_URL||'http://127.0.0.1:11434';
 const MODEL=process.env.OLLAMA_MODEL||'qwen3:4b';
+const GEMINI_API_KEY=process.env.GEMINI_API_KEY||'';
+const GEMINI_MODEL=process.env.GEMINI_MODEL||'gemini-2.5-flash-lite';
+const AI_PROVIDER=process.env.AI_PROVIDER||'auto'; // auto, gemini u ollama
+const GEMINI_FALLBACK=process.env.GEMINI_FALLBACK!=='false';
+if(!['auto','gemini','ollama'].includes(AI_PROVIDER))throw Error('AI_PROVIDER debe ser auto, gemini u ollama');
+async function callGemini(message,history,signal){
+ if(!GEMINI_API_KEY)throw Error('Falta GEMINI_API_KEY');
+ const contents=[...history,{role:'user',content:message}].map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+ const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(GEMINI_MODEL)+':generateContent',{
+  method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':GEMINI_API_KEY},
+  body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents,generationConfig:{temperature:0.3,maxOutputTokens:600}}),signal
+ });
+ if(!response.ok)throw Error('Gemini HTTP '+response.status);
+ const data=await response.json();
+ const answer=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('').trim();
+ if(!answer)throw Error('Gemini no devolvió texto');
+ return answer;
+}
+async function callOllama(message,history,signal){
+ const response=await fetch(OLLAMA_URL+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,stream:false,think:false,messages:[{role:'system',content:system},...history,{role:'user',content:'/no_think\\n'+message}],options:{temperature:0.3,num_predict:250}}),signal});
+ if(!response.ok)throw Error('Ollama HTTP '+response.status);
+ const data=await response.json();
+ const answer=(data.message?.content||'').trim();
+ if(!answer)throw Error('Ollama no devolvió texto');
+ return answer;
+}
 const ALLOWED_ORIGIN=process.env.ALLOWED_ORIGIN||'https://vuniko.github.io';
 const products=[
 ['Hamburguesa clásica',28,'comida','Carne de res, cheddar, pan, lechuga, tomate'],['Papas de la casa',16,'comida','Papas y salsa especial'],['Pizza margarita',32,'comida','Masa, tomate, mozzarella, albahaca'],['Alitas BBQ',26,'comida','Pollo y salsa BBQ'],
@@ -100,7 +126,7 @@ const recent=new Map();let active=0;
 function respond(res,status,obj,origin){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Access-Control-Allow-Origin':origin,'Vary':'Origin','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj))}
 http.createServer(async(req,res)=>{
  const origin=req.headers.origin;
- if(req.url==='/health'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,model:MODEL}));return}
+ if(req.url==='/health'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,model:MODEL,provider:AI_PROVIDER,geminiConfigured:Boolean(GEMINI_API_KEY)}));return}
  if(origin!==ALLOWED_ORIGIN){respond(res,403,{error:'Origen no permitido'},ALLOWED_ORIGIN);return}
  if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Origin':ALLOWED_ORIGIN,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'600'});res.end();return}
  if(req.url!=='/api/chat'||req.method!=='POST'){respond(res,404,{error:'No encontrado'},ALLOWED_ORIGIN);return}
@@ -110,6 +136,28 @@ http.createServer(async(req,res)=>{
  const history=Array.isArray(body.history)?body.history.slice(-10).filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string'&&m.content.length<=700).map(m=>({role:m.role,content:m.content})):[];
  const detail=productAnswer(body.message,history);if(detail){respond(res,200,{answer:detail},ALLOWED_ORIGIN);return}
  const followup=beerFollowup(body.message,history);if(followup){respond(res,200,{answer:followup},ALLOWED_ORIGIN);return}
- active++;try{const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),45000);try{const response=await fetch(OLLAMA_URL+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,stream:false,think:false,messages:[{role:'system',content:system},...history,{role:'user',content:'/no_think\n'+body.message}],options:{temperature:0.3,num_predict:250}}),signal:controller.signal});if(!response.ok)throw Error('Ollama respondió '+response.status);const data=await response.json();const content=(data.message?.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/<think>[\s\S]*$/gi,'').trim();const answer=cleanAnswer(content,body.message,history);respond(res,200,{answer:answer||'No pude responder esta vez. Intentá reformular tu pregunta.'},ALLOWED_ORIGIN)}finally{clearTimeout(timeout)}}finally{active--}}
- catch(e){respond(res,503,{error:'No pude conectar con Ollama. Verificá que esté abierto y el modelo instalado.'},ALLOWED_ORIGIN);console.error(e.message)}
+ active++;
+ try{
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),45000);
+  try{
+   const useGemini=AI_PROVIDER==='gemini'||AI_PROVIDER==='auto'&&Boolean(GEMINI_API_KEY);
+   let answer,provider;
+   if(useGemini){
+    try{answer=await callGemini(body.message,history,controller.signal);provider='gemini'}
+    catch(e){
+     console.error('Gemini:',e.message);
+     if(!GEMINI_FALLBACK||controller.signal.aborted)throw e;
+     answer=await callOllama(body.message,history,controller.signal);provider='ollama';
+    }
+   }else{
+    answer=await callOllama(body.message,history,controller.signal);provider='ollama';
+   }
+   respond(res,200,{answer:cleanAnswer(answer,body.message,history),provider},ALLOWED_ORIGIN);
+  }finally{clearTimeout(timeout)}
+ }catch(e){
+  console.error('MenuIA IA:',e.message);
+  respond(res,503,{error:'No se pudo consultar la IA. Revisá la clave Gemini, conexión o Ollama.'},ALLOWED_ORIGIN);
+ }finally{active--}
+
 }).listen(PORT,'127.0.0.1',()=>console.log('MenuIA backend: http://127.0.0.1:'+PORT));
