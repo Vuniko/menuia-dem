@@ -1,9 +1,11 @@
 import http from 'node:http';
+import {readFile} from 'node:fs/promises';
+import {pathToFileURL} from 'node:url';
 const PORT=Number(process.env.PORT||8787);
 const OLLAMA_URL=process.env.OLLAMA_URL||'http://127.0.0.1:11434';
 const MODEL=process.env.OLLAMA_MODEL||'qwen3:4b';
 const GEMINI_API_KEY=process.env.GEMINI_API_KEY||'';
-const GEMINI_MODEL=process.env.GEMINI_MODEL||'gemini-2.5-flash-lite';
+const GEMINI_MODEL=process.env.GEMINI_MODEL||(['preview','production'].includes(process.env.VERCEL_ENV)?'gemini-3.5-flash-lite':'gemini-2.5-flash-lite');
 const AI_PROVIDER=process.env.AI_PROVIDER||'auto'; // auto, gemini u ollama
 const GEMINI_FALLBACK=process.env.GEMINI_FALLBACK!=='false';
 if(!['auto','gemini','ollama'].includes(AI_PROVIDER))throw Error('AI_PROVIDER debe ser auto, gemini u ollama');
@@ -44,6 +46,9 @@ REGLAS DE RESPUESTA:
 - Ofrecé un acompañamiento solo si tiene sentido y respetando el presupuesto. Si no alcanza, decilo y sugerí opciones viables.
 - Para maridajes: IPA artesanal (cítrica y amarga) con hamburguesa o alitas BBQ; Golden Ale (suave) con papas o hamburguesa; Red Ale (malteada) con pizza; Stout (tostada) con postres, pero NO inventes postres que no estén en la carta.
 - Si consultan por ingredientes, alergias o restricciones, la carta es ilustrativa y deben confirmar con el personal. No asegures ausencia de alérgenos.
+- Separá los datos registrados del conocimiento general: una característica habitual de un estilo no confirma los ingredientes o alérgenos de nuestras cervezas. Sus descripciones son perfiles de sabor, no recetas ni certificados. Si preguntan por gluten, cebada o trigo, indicá que no tenemos registrada la composición ni las trazas y que deben confirmarlas con el personal antes de consumir. No atribuyas esos ingredientes a nuestras cervezas ni garantices aptitud para celíacos.
+- Medios de pago (Yape, Plin, tarjetas o efectivo), wifi, reservas y posibilidad de pedir por QR no están registrados. No confirmes ni niegues que están disponibles; decí que no contamos con ese dato y que deben consultarlo con el personal. El historial del cliente no verifica esos datos.
+- Un producto ausente de esta carta de demostración no prueba que el local no lo prepare o no lo venda. Para cócteles o tragos con destilados, decí que no figuran opciones en la carta disponible y que pueden confirmar con el personal; nunca afirmes que no preparamos cócteles. Podés ofrecer bebidas que sí figuran, aclarando si son sin alcohol.
 - No inventes productos, precios, promociones, stock, horarios, pedidos ni descuentos. No afirmes que tomaste un pedido ni cobraste.
 - Si el cliente es menor de edad, no recomiendes alcohol. Nunca sugieras consumo excesivo.
 Si preguntan por un producto concreto, explicá sus ingredientes, sabor o características conocidas, no vuelvas al menú general. Si el cliente pregunta «¿tiene queso?» o «¿y cuánto sale?», recuperá el producto mencionado en el historial. Datos no especificados: tamaños, porciones, azúcar, alérgenos, stock, horarios, promociones y grado alcohólico; nunca los inventes.\nCARTA ÚNICA DE DEMOSTRACIÓN: ${products.map(p=>p[0]+' S/ '+p[1]+' ('+p[2]+'): '+p[3]).join('; ')}.
@@ -124,44 +129,57 @@ function cleanAnswer(value,question,history=[]){
 }
 const recent=new Map();let active=0;
 function respond(res,status,obj,origin){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Access-Control-Allow-Origin':origin,'Vary':'Origin','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(obj))}
-http.createServer(async(req,res)=>{
+export async function handleRequest(req,res,{forceGemini=false}={}){
  const origin=req.headers.origin;
+ const labFiles={'/training-lab/':'index.html','/training-lab/index.html':'index.html','/training-lab/app.js':'app.js','/training-lab/csv.js':'csv.js','/training-lab/evaluation.js':'evaluation.js'};
+ if(req.method==='GET'&&labFiles[req.url]){
+  try{const file=labFiles[req.url];const content=await readFile(new URL('../training-lab/'+file,import.meta.url));res.writeHead(200,{'Content-Type':file.endsWith('.js')?'text/javascript; charset=utf-8':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(content)}catch{res.writeHead(500);res.end('No se pudo abrir el laboratorio')}return;
+ }
+ const localOrigin='http://127.0.0.1:'+PORT;
+ const previewOrigins=['preview','production'].includes(process.env.VERCEL_ENV)?[process.env.VERCEL_URL,process.env.VERCEL_BRANCH_URL,process.env.VERCEL_ENV==='production'?'menuia-dem.vercel.app':null].filter(Boolean).map(host=>'https://'+host):[];
+ const trustedOrigin=origin===localOrigin||previewOrigins.includes(origin);
+ const allowedOrigin=trustedOrigin?origin:ALLOWED_ORIGIN;
  if(req.url==='/health'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,model:MODEL,provider:AI_PROVIDER,geminiConfigured:Boolean(GEMINI_API_KEY)}));return}
- if(origin!==ALLOWED_ORIGIN){respond(res,403,{error:'Origen no permitido'},ALLOWED_ORIGIN);return}
- if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Origin':ALLOWED_ORIGIN,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'600'});res.end();return}
- if(req.url!=='/api/chat'||req.method!=='POST'){respond(res,404,{error:'No encontrado'},ALLOWED_ORIGIN);return}
- const ip=(req.socket.remoteAddress||'unknown');const now=Date.now();const prior=(recent.get(ip)||[]).filter(t=>now-t<60000);if(prior.length>=12){respond(res,429,{error:'Demasiadas preguntas. Intentá en un minuto.'},ALLOWED_ORIGIN);return}prior.push(now);recent.set(ip,prior);if(recent.size>1000)recent.clear();
- if(active>=2){respond(res,503,{error:'Asistente ocupado. Probá en unos segundos.'},ALLOWED_ORIGIN);return}
- let raw='';try{for await(const chunk of req){raw+=chunk;if(raw.length>4000)throw new Error('Solicitud demasiado grande')}const body=JSON.parse(raw);if(typeof body.message!=='string'||!body.message.trim()||body.message.length>500){respond(res,400,{error:'Pregunta inválida (máximo 500 caracteres).'},ALLOWED_ORIGIN);return}
+ if(origin!==ALLOWED_ORIGIN&&!trustedOrigin){respond(res,403,{error:'Origen no permitido'},allowedOrigin);return}
+ if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Origin':allowedOrigin,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'600'});res.end();return}
+ if(!['/api/chat','/api/gemini-check'].includes(req.url)||req.method!=='POST'){respond(res,404,{error:'No encontrado'},allowedOrigin);return}
+ forceGemini=forceGemini||req.url==='/api/gemini-check';
+ const ip=(req.socket?.remoteAddress||'unknown');const now=Date.now();const prior=(recent.get(ip)||[]).filter(t=>now-t<60000);if(prior.length>=12){respond(res,429,{error:'Demasiadas preguntas. Intentá en un minuto.'},allowedOrigin);return}prior.push(now);recent.set(ip,prior);if(recent.size>1000)recent.clear();
+ if(active>=2){respond(res,503,{error:'Asistente ocupado. Probá en unos segundos.'},allowedOrigin);return}
+ let raw='';try{let body;if(req.body!==undefined){raw=typeof req.body==='string'?req.body:JSON.stringify(req.body);if(raw.length>4000)throw Error('Solicitud demasiado grande');body=JSON.parse(raw)}else{for await(const chunk of req){raw+=chunk;if(raw.length>4000)throw new Error('Solicitud demasiado grande')}body=JSON.parse(raw)}if(typeof body.message!=='string'||!body.message.trim()||body.message.length>500){respond(res,400,{error:'Pregunta inválida (máximo 500 caracteres).'},allowedOrigin);return}
  const history=Array.isArray(body.history)?body.history.slice(-10).filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string'&&m.content.length<=700).map(m=>({role:m.role,content:m.content})):[];
- const detail=productAnswer(body.message,history);if(detail){respond(res,200,{answer:detail},ALLOWED_ORIGIN);return}
- const followup=beerFollowup(body.message,history);if(followup){respond(res,200,{answer:followup},ALLOWED_ORIGIN);return}
+ const detail=forceGemini?null:productAnswer(body.message,history);if(detail){respond(res,200,{answer:detail,provider:'reglas',model:null},allowedOrigin);return}
+ const followup=forceGemini?null:beerFollowup(body.message,history);if(followup){respond(res,200,{answer:followup,provider:'reglas',model:null},allowedOrigin);return}
  active++;
  try{
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),45000);
   try{
-   const useGemini=AI_PROVIDER==='gemini'||AI_PROVIDER==='auto'&&Boolean(GEMINI_API_KEY);
+   const useGemini=forceGemini||['preview','production'].includes(process.env.VERCEL_ENV)||AI_PROVIDER==='gemini'||AI_PROVIDER==='auto'&&Boolean(GEMINI_API_KEY);
    let answer,provider;
    if(useGemini){
     try{answer=await callGemini(body.message,history,controller.signal);provider='gemini'}
     catch(e){
      console.error('Gemini:',e.message);
-     if(!GEMINI_FALLBACK||controller.signal.aborted)throw e;
+     if(forceGemini||['preview','production'].includes(process.env.VERCEL_ENV)||!GEMINI_FALLBACK||controller.signal.aborted)throw e;
      answer=await callOllama(body.message,history,controller.signal);provider='ollama';
     }
    }else{
     answer=await callOllama(body.message,history,controller.signal);provider='ollama';
    }
-   respond(res,200,{answer:cleanAnswer(answer,body.message,history),provider},ALLOWED_ORIGIN);
+   const cleaned=cleanAnswer(answer,body.message,history);
+   respond(res,200,{answer:cleaned,provider,model:provider==='gemini'?GEMINI_MODEL:MODEL,responseSource:cleaned===answer?'modelo':'respaldo'},allowedOrigin);
   }finally{clearTimeout(timeout)}
  }catch(e){
   console.error('MenuIA IA:',e.message);
-  respond(res,503,{error:'No se pudo consultar la IA. Revisá la clave Gemini, conexión o Ollama.'},ALLOWED_ORIGIN);
+  respond(res,503,{error:'No se pudo consultar la IA. Revisá la clave Gemini, conexión o Ollama.'},allowedOrigin);
  }finally{active--}
  }catch(e){
   console.error('Solicitud inválida:',e.message);
-  if(!res.headersSent)respond(res,400,{error:'Solicitud inválida o demasiado grande.'},ALLOWED_ORIGIN);
+  if(!res.headersSent)respond(res,400,{error:'Solicitud inválida o demasiado grande.'},allowedOrigin);
  }
 
-}).listen(PORT,'127.0.0.1',()=>console.log('MenuIA backend: http://127.0.0.1:'+PORT));
+}
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
+ http.createServer(handleRequest).listen(PORT,'127.0.0.1',()=>console.log('MenuIA backend: http://127.0.0.1:'+PORT));
+}
