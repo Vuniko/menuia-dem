@@ -5,7 +5,7 @@ const PORT=Number(process.env.PORT||8787);
 const OLLAMA_URL=process.env.OLLAMA_URL||'http://127.0.0.1:11434';
 const MODEL=process.env.OLLAMA_MODEL||'qwen3:4b';
 const GEMINI_API_KEY=process.env.GEMINI_API_KEY||'';
-const GEMINI_MODEL=process.env.GEMINI_MODEL||(process.env.VERCEL_ENV==='preview'?'gemini-3.5-flash-lite':'gemini-2.5-flash-lite');
+const GEMINI_MODEL=process.env.GEMINI_MODEL||(['preview','production'].includes(process.env.VERCEL_ENV)?'gemini-3.5-flash-lite':'gemini-2.5-flash-lite');
 const AI_PROVIDER=process.env.AI_PROVIDER||'auto'; // auto, gemini u ollama
 const GEMINI_FALLBACK=process.env.GEMINI_FALLBACK!=='false';
 if(!['auto','gemini','ollama'].includes(AI_PROVIDER))throw Error('AI_PROVIDER debe ser auto, gemini u ollama');
@@ -136,7 +136,7 @@ export async function handleRequest(req,res,{forceGemini=false}={}){
   try{const file=labFiles[req.url];const content=await readFile(new URL('../training-lab/'+file,import.meta.url));res.writeHead(200,{'Content-Type':file.endsWith('.js')?'text/javascript; charset=utf-8':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(content)}catch{res.writeHead(500);res.end('No se pudo abrir el laboratorio')}return;
  }
  const localOrigin='http://127.0.0.1:'+PORT;
- const previewOrigins=process.env.VERCEL_ENV==='preview'?[process.env.VERCEL_URL,process.env.VERCEL_BRANCH_URL].filter(Boolean).map(host=>'https://'+host):[];
+ const previewOrigins=['preview','production'].includes(process.env.VERCEL_ENV)?[process.env.VERCEL_URL,process.env.VERCEL_BRANCH_URL,process.env.VERCEL_ENV==='production'?'menuia-dem.vercel.app':null].filter(Boolean).map(host=>'https://'+host):[];
  const trustedOrigin=origin===localOrigin||previewOrigins.includes(origin);
  const allowedOrigin=trustedOrigin?origin:ALLOWED_ORIGIN;
  if(req.url==='/health'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,model:MODEL,provider:AI_PROVIDER,geminiConfigured:Boolean(GEMINI_API_KEY)}));return}
@@ -155,13 +155,13 @@ export async function handleRequest(req,res,{forceGemini=false}={}){
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),45000);
   try{
-   const useGemini=forceGemini||process.env.VERCEL_ENV==='preview'||AI_PROVIDER==='gemini'||AI_PROVIDER==='auto'&&Boolean(GEMINI_API_KEY);
+   const useGemini=forceGemini||['preview','production'].includes(process.env.VERCEL_ENV)||AI_PROVIDER==='gemini'||AI_PROVIDER==='auto'&&Boolean(GEMINI_API_KEY);
    let answer,provider;
    if(useGemini){
     try{answer=await callGemini(body.message,history,controller.signal);provider='gemini'}
     catch(e){
      console.error('Gemini:',e.message);
-     if(forceGemini||process.env.VERCEL_ENV==='preview'||!GEMINI_FALLBACK||controller.signal.aborted)throw e;
+     if(forceGemini||['preview','production'].includes(process.env.VERCEL_ENV)||!GEMINI_FALLBACK||controller.signal.aborted)throw e;
      answer=await callOllama(body.message,history,controller.signal);provider='ollama';
     }
    }else{

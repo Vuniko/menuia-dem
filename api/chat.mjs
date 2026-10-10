@@ -1,5 +1,5 @@
 import {handleRequest} from '../server/index.js';
 export default async function handler(req,res){
- if(process.env.VERCEL_ENV!=='preview'){res.statusCode=404;return res.end('Preview only')}
+ if(!['preview','production'].includes(process.env.VERCEL_ENV)){res.statusCode=404;return res.end('Deployment only')}
  req.url='/api/chat';return handleRequest(req,res);
 }
