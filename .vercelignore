@@ -1,0 +1,10 @@
+.git
+server/*.test.mjs
+training-lab/*.test.cjs
+training-lab/fixtures
+training-lab/reports
+*.jpg
+*.png
+*.csv
+*.xlsx
+.env*

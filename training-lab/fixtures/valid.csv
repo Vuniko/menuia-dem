@@ -1,0 +1,4 @@
+pregunta,respuesta,intencion,categoria,variante,id,nota
+"Causa, qué chelas hay?",Consultar carta,consultar_cervezas,bebidas,jerga,1,"dato, adicional"
+"Causa, qué chelas hay?",Consultar carta,consultar_cervezas,bebidas,jerga,1,"dato, adicional"
+cuanto ta la pizza,,,comida,error,2,pendiente
