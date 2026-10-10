@@ -5,7 +5,7 @@ const PORT=Number(process.env.PORT||8787);
 const OLLAMA_URL=process.env.OLLAMA_URL||'http://127.0.0.1:11434';
 const MODEL=process.env.OLLAMA_MODEL||'qwen3:4b';
 const GEMINI_API_KEY=process.env.GEMINI_API_KEY||'';
-const GEMINI_MODEL=process.env.GEMINI_MODEL||'gemini-2.5-flash-lite';
+const GEMINI_MODEL=process.env.GEMINI_MODEL||(process.env.VERCEL_ENV==='preview'?'gemini-3.5-flash-lite':'gemini-2.5-flash-lite');
 const AI_PROVIDER=process.env.AI_PROVIDER||'auto'; // auto, gemini u ollama
 const GEMINI_FALLBACK=process.env.GEMINI_FALLBACK!=='false';
 if(!['auto','gemini','ollama'].includes(AI_PROVIDER))throw Error('AI_PROVIDER debe ser auto, gemini u ollama');
@@ -180,3 +180,4 @@ export async function handleRequest(req,res,{forceGemini=false}={}){
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  http.createServer(handleRequest).listen(PORT,'127.0.0.1',()=>console.log('MenuIA backend: http://127.0.0.1:'+PORT));
 }
+
