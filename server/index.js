@@ -41,6 +41,17 @@ function beerFollowup(question,history=[]){
   return 'La cerveza artesanal más económica es la Golden Ale (S/17). Es rubia, ligera y suave. ¿Querés que la compare con otra?';
  return null;
 }
+function productAnswer(question){
+ const q=normalizeText(question);
+ const aliases=[['hamburguesa clasica','hamburguesa','burger'],['papas de la casa','papas'],['pizza margarita','pizza'],['alitas bbq','alitas'],['ipa artesanal','ipa'],['golden ale','golden'],['stout'],['red ale'],['limonada natural','limonada'],['maracuya frozen','maracuya'],['chicha morada','chicha'],['ginger ale','ginger']];
+ const index=aliases.findIndex(names=>names.some(name=>q.includes(name)));
+ if(index<0||!/que tiene|que lleva|que contiene|ingredientes|que trae|que incluye|explicame|contame|cuentame|como es|cuanto cuesta|cuanto sale|precio|con que combina|alerg|gluten|lactosa/.test(q))return null;
+ const [name,price,category,ingredients]=products[index];
+ if(/cuanto cuesta|cuanto sale|precio/.test(q))return name+' cuesta S/'+price+'. ¿Querés conocer sus ingredientes?';
+ if(/alerg|gluten|lactosa/.test(q))return name+' (S/'+price+'): '+ingredients+'. La carta es ilustrativa; confirmá alérgenos y contaminación cruzada con el personal.';
+ const suggestion=category==='comida'?['Golden Ale (S/17)','Golden Ale (S/17)','Red Ale (S/18)','IPA artesanal (S/19)'][index]:null;
+ return name+' — S/'+price+'. '+(category==='cerveza'?'Perfil: ':'Según la carta, lleva: ')+ingredients+'.'+(suggestion?' Podés acompañarlo con '+suggestion+'.':'')+' ¿Querés saber algo más sobre este producto?';
+}
 function spanishFallback(question,history=[]){const contextual=beerFollowup(question,history);if(contextual)return contextual;const q=question.toLocaleLowerCase('es');if(/hola|buenas|hello|hi\b/.test(q))return '¡Hola! Bienvenido a MenuIA. ¿Querés ver nuestras cervezas, comidas o recomendaciones según tu presupuesto?';if(/cerveza|ipa|ale|stout/.test(q))return 'Tenemos IPA artesanal (S/19), Golden Ale (S/17), Stout (S/20) y Red Ale (S/18). ¿Preferís una cerveza suave o intensa?';if(/comida|hamburguesa|pizza|papas|alitas/.test(q))return 'Tenemos hamburguesa clásica (S/28), papas de la casa (S/16), pizza margarita (S/32) y alitas BBQ (S/26). ¿Querés que te sugiera una combinación?';if(/sin alcohol|limonada|maracuy|chicha|ginger/.test(q))return 'Sin alcohol tenemos limonada (S/10), maracuyá frozen (S/13), chicha morada (S/10) y ginger ale (S/11).';return '¡Con gusto te ayudo! Tenemos comidas, cervezas artesanales y bebidas sin alcohol. ¿Qué te gustaría consultar de nuestra carta?'}
 function cleanAnswer(value,question,history=[]){
  let s=String(value||'').trim();
@@ -63,6 +74,7 @@ http.createServer(async(req,res)=>{
  if(active>=2){respond(res,503,{error:'Asistente ocupado. Probá en unos segundos.'},ALLOWED_ORIGIN);return}
  let raw='';try{for await(const chunk of req){raw+=chunk;if(raw.length>4000)throw new Error('Solicitud demasiado grande')}const body=JSON.parse(raw);if(typeof body.message!=='string'||!body.message.trim()||body.message.length>500){respond(res,400,{error:'Pregunta inválida (máximo 500 caracteres).'},ALLOWED_ORIGIN);return}
  const history=Array.isArray(body.history)?body.history.slice(-10).filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string'&&m.content.length<=700).map(m=>({role:m.role,content:m.content})):[];
+ const detail=productAnswer(body.message);if(detail){respond(res,200,{answer:detail},ALLOWED_ORIGIN);return}
  const followup=beerFollowup(body.message,history);if(followup){respond(res,200,{answer:followup},ALLOWED_ORIGIN);return}
  active++;try{const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),45000);try{const response=await fetch(OLLAMA_URL+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,stream:false,think:false,messages:[{role:'system',content:system},...history,{role:'user',content:'/no_think\n'+body.message}],options:{temperature:0.3,num_predict:250}}),signal:controller.signal});if(!response.ok)throw Error('Ollama respondió '+response.status);const data=await response.json();const content=(data.message?.content||'').replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/<think>[\s\S]*$/gi,'').trim();const answer=cleanAnswer(content,body.message,history);respond(res,200,{answer:answer||'No pude responder esta vez. Intentá reformular tu pregunta.'},ALLOWED_ORIGIN)}finally{clearTimeout(timeout)}}finally{active--}}
  catch(e){respond(res,503,{error:'No pude conectar con Ollama. Verificá que esté abierto y el modelo instalado.'},ALLOWED_ORIGIN);console.error(e.message)}
