@@ -159,5 +159,9 @@ http.createServer(async(req,res)=>{
   console.error('MenuIA IA:',e.message);
   respond(res,503,{error:'No se pudo consultar la IA. Revisá la clave Gemini, conexión o Ollama.'},ALLOWED_ORIGIN);
  }finally{active--}
+ }catch(e){
+  console.error('Solicitud inválida:',e.message);
+  if(!res.headersSent)respond(res,400,{error:'Solicitud inválida o demasiado grande.'},ALLOWED_ORIGIN);
+ }
 
 }).listen(PORT,'127.0.0.1',()=>console.log('MenuIA backend: http://127.0.0.1:'+PORT));
