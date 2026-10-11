@@ -1,7 +1,7 @@
 /* UI state only. No provider, prompt, payload or conversation-history changes. */
 (()=>{
  const panel=document.getElementById('ia-panel'),messages=document.getElementById('ai-messages'),form=document.getElementById('ai-form'),input=document.getElementById('ai-input'),send=form.querySelector('button');
- input.placeholder='Escribí tu pregunta…';input.enterKeyHint='send';input.setAttribute('autocapitalize','sentences');
+ input.placeholder='Preguntá…';input.enterKeyHint='send';input.setAttribute('autocapitalize','sentences');
  const bottom=document.createElement('div');bottom.className='ai-bottom';panel.append(bottom);
  for(const selector of ['.ai-chips','.ai-config','#ai-settings-panel','#ai-form','.ai-disclaimer'])bottom.append(panel.querySelector(selector));
  const thinking=document.createElement('div');thinking.className='ai-thinking';thinking.textContent='MenuIA está preparando tu respuesta';thinking.hidden=true;thinking.setAttribute('role','status');panel.insertBefore(thinking,bottom);
