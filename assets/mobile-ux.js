@@ -14,8 +14,11 @@
  // Keep the original rendering function and replace only its scrolling presentation.
  addAiMessage=function(message,type){
   const shouldFollow=type==='user'||follow;const previous=messages.scrollTop;
-  const el=document.createElement('div');el.className='ai-bubble '+type;el.textContent=message;
-  if(type==='bot'&&message.startsWith('No pude consultar el asistente'))el.dataset.error='true';
+  const el=document.createElement('div');el.className='ai-bubble '+type;
+  if(type==='bot'&&message.startsWith('No pude consultar el asistente')){
+   el.dataset.error='true';const fallback=message.split('Te respondo con el modo demo:')[1]||'';
+   el.textContent='No pudimos conectar con la IA. Esta respuesta usa la carta de demostración.\n\n'+fallback.replace(/^\\n/,'').trim();
+  }else el.textContent=message;
   el.setAttribute('aria-label',type==='user'?'Tu mensaje':'Respuesta de MenuIA');messages.append(el);
   if(shouldFollow)scrollEnd();else{messages.scrollTop=previous;newer.hidden=false;}
  };
