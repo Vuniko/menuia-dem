@@ -16,6 +16,7 @@ export function buildKnowledge(bundle,restaurantId,now=new Date()){
  const categories=own('categories').filter(c=>c.published),categoryIds=new Set(categories.map(c=>c.id));
  const products=own('products').filter(p=>p.published&&categoryIds.has(p.category_id)).map(p=>({id:p.id,name:p.name,price:p.price,description:p.description||'',ingredients:p.ingredients||[],allergens:p.allergens||[],stock:stock(p,now)}));
  const ids=new Set(products.map(p=>p.id));
+ const pairings=own('product_pairings').filter(x=>ids.has(x.product_id)&&ids.has(x.paired_product_id)).map(x=>({productId:x.product_id,pairedProductId:x.paired_product_id,note:x.note||''}));
  const promotions=own('promotions').filter(p=>promotionActive(p,now)).filter(p=>{
   const links=own('promotion_products').filter(x=>x.promotion_id===p.id);
   return links.every(x=>ids.has(x.product_id))&&(!p.require_available||links.length>0&&links.every(x=>products.find(p=>p.id===x.product_id)?.stock==='verificado'));
@@ -23,7 +24,7 @@ export function buildKnowledge(bundle,restaurantId,now=new Date()){
  const faqs=own('restaurant_faqs').filter(x=>x.published).map(x=>({id:x.id,question:x.question,answer:x.answer}));
  const documents=own('knowledge_documents').filter(x=>x.published&&x.active).map(x=>({id:x.id,title:x.title,content:x.content}));
  const hours=own('business_hours').filter(x=>x.active).map(x=>({day:x.day_of_week,opens:x.opens_at,closes:x.closes_at,nextDay:x.closes_next_day}));
- const result={restaurantId,name:r.name,checkedAt:now.toISOString(),products,promotions,faqs,documents,hours,contact:{address:r.address,phone:r.phone,whatsapp:r.whatsapp},payments:r.payments_verified_at&&Date.parse(r.payments_verified_at)<=+now?r.payment_methods:[],services:r.services||'',policies:r.business_policies||''};
+ const result={restaurantId,name:r.name,checkedAt:now.toISOString(),products,pairings,promotions,faqs,documents,hours,contact:{address:r.address,phone:r.phone,whatsapp:r.whatsapp},payments:r.payments_verified_at&&Date.parse(r.payments_verified_at)<=+now?r.payment_methods:[],services:r.services||'',policies:r.business_policies||''};
  if(Buffer.byteLength(JSON.stringify(result))>60000)throw Error('El conocimiento publicado supera el límite de esta prueba. Reducí los documentos o la carta.');
  return result;
 }
@@ -35,6 +36,11 @@ export function structuredAnswer(k,message,history=[]){
  if(/^(gracias|muchas gracias|ok|listo|perfecto)[!?.\s]*$/.test(q))return '¡Con gusto! Si querés, seguimos viendo qué opción te conviene.';
  if(/^(chau|chao|adios|hasta luego)[!?.\s]*$/.test(q))return '¡Hasta luego! Acá estoy cuando quieras volver a consultar.';
  const reference=matched||(/precio|cuanto|ingrediente|alerg|gluten|tiene|lleva|eso|ese|esa/.test(q)?[...history].reverse().map(m=>k.products.find(p=>normal(m.content).includes(normal(p.name)))).find(Boolean):null);
+ if(/combina|combinacion|maridaje|acompan/.test(q)){
+  const named=matched||k.products.find(p=>normal(p.name).split(' ').some(word=>word.length>=3&&new RegExp('\\b'+word+'\\b').test(q)));
+  const pairs=(k.pairings||[]).filter(x=>!named||x.productId===named.id||x.pairedProductId===named.id).map(x=>({a:k.products.find(p=>p.id===x.productId),b:k.products.find(p=>p.id===x.pairedProductId),note:x.note})).filter(x=>x.a.stock!=='agotado'&&x.b.stock!=='agotado');
+  return pairs.length?pairs.map(x=>`${x.a.name} (${money(x.a.price)}) + ${x.b.name} (${money(x.b.price)}). Total por separado: ${money((Math.round(Number(x.a.price)*100)+Math.round(Number(x.b.price)*100))/100)}. ${x.note} ${x.a.stock==='verificado'&&x.b.stock==='verificado'?'Disponibilidad verificada.':'Confirmá disponibilidad con el personal.'}`).join('\n'):'No hay una combinación publicada y disponible registrada para esa consulta.';
+ }
  if(/alerg|gluten|celiac|intoleran|lactosa/.test(q))return reference?`${reference.name}. Alérgenos declarados: ${reference.allergens.join(', ')||'sin información registrada'}. Esta declaración no garantiza ausencia de otros alérgenos ni de trazas; confirmá con el personal antes de consumir.`:'La carta no certifica ausencia de alérgenos ni de contaminación cruzada. Confirmá con el personal antes de consumir. ¿Qué producto querés consultar?';
  if(reference)return /ingrediente|lleva|tiene|contiene/.test(q)?`${reference.name}: ingredientes registrados: ${reference.ingredients.join(', ')||'pendientes de confirmar'}. La lista no certifica ausencia de otros ingredientes o trazas.`:productLine(reference);
  const amount=/(?:presupuesto|tengo|hasta|cuento con|maximo)\s*(?:de\s*)?(?:s\/?\s*\.?\s*)?(\d+(?:[.,]\d{1,2})?)/.exec(q);
