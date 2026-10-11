@@ -100,8 +100,9 @@ export function createAdminHandler({env=process.env,fetcher=fetch}={}){
    if(action==='config'&&req.method==='GET'){respond(200,{configured:Boolean(configured()),environment:'Pruebas',sessionMinutes:60});return;}
    if(!configured())fail(503,'Falta configurar Supabase para este Preview.');
    let body={};if(req.method==='POST'){
-    let raw='';if(req.body!==undefined)raw=typeof req.body==='string'?req.body:JSON.stringify(req.body);else for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>40000)fail(413,'Formulario demasiado grande.');}
-    if(Buffer.byteLength(raw)>40000)fail(413,'Formulario demasiado grande.');try{body=JSON.parse(raw)}catch{fail(400,'Formulario inválido.')};if(!body||Array.isArray(body)||typeof body!=='object')fail(400,'Formulario inválido.');
+    const bodyLimit=action==='trainingBankSave'?2000000:40000;
+    let raw='';if(req.body!==undefined)raw=typeof req.body==='string'?req.body:JSON.stringify(req.body);else for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>bodyLimit)fail(413,'Formulario demasiado grande.');}
+    if(Buffer.byteLength(raw)>bodyLimit)fail(413,'Formulario demasiado grande.');try{body=JSON.parse(raw)}catch{fail(400,'Formulario inválido.')};if(!body||Array.isArray(body)||typeof body!=='object')fail(400,'Formulario inválido.');
    }
    if(action==='login'&&req.method==='POST'){
     const email=text(254,true)(body.email),password=body.password;if(typeof password!=='string'||password.length<1||password.length>1000)fail(400,'Ingresá tu contraseña.');

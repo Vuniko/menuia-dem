@@ -9,6 +9,14 @@ export async function trainingAction({action,method,body,url,restaurantId,role,s
  const read=async(table,params)=>supabase(query(table,{restaurant_id:'eq.'+restaurantId,...params}));
  const write=async(table,params,values)=>supabase(query(table,{restaurant_id:'eq.'+restaurantId,...params}),{method:'PATCH',body:values,representation:true});
  const rpc=(name,values)=>supabase('/rest/v1/rpc/'+name,{method:'POST',body:values});
+ if(action==='trainingBank'&&method==='GET'){const rows=await read('training_question_banks',{select:'rows,previous_rows,updated_at',limit:'1'});respond(200,{bank:rows[0]||{rows:[],previous_rows:[],updated_at:null}});return;}
+ if(action==='trainingBankSave'&&method==='POST'){
+  if(!['owner','editor'].includes(role))fail(403,'Tu acceso es de solo lectura.');
+  if(!Array.isArray(body.rows)||body.rows.length>5000||Buffer.byteLength(JSON.stringify(body.rows))>1800000)fail(400,'El banco admite hasta 5000 preguntas y 1,8 MB. Exportá antes de dividirlo.');
+  for(const r of body.rows)if(!r||Array.isArray(r)||typeof r!=='object'||typeof r.question!=='string'||r.question.length>500||typeof(r.answer||'')!=='string'||(r.answer||'').length>10000)fail(400,'Revisá las preguntas y respuestas del banco.');
+  if(body.expectedUpdatedAt!==null&&(typeof body.expectedUpdatedAt!=='string'||!Number.isFinite(Date.parse(body.expectedUpdatedAt))))fail(400,'Versión del banco inválida.');
+  const bank=await rpc('kb_save_training_bank',{r_id:restaurantId,bank_rows:body.rows,expected_updated_at:body.expectedUpdatedAt});respond(200,{bank});return;
+ }
  if(action==='trainingList'&&method==='GET'){respond(200,{runs:await read('training_runs',{select:'id,status,question_count,created_at,started_at,completed_at',order:'created_at.desc',limit:'50'})});return;}
  const runId=method==='GET'?url.searchParams.get('runId'):body.runId;
  if(action==='trainingStart'&&method==='POST'){
