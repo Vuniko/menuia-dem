@@ -29,8 +29,26 @@ export function buildKnowledge(bundle,restaurantId,now=new Date()){
  return result;
 }
 function productLine(p){return `${p.name}: ${money(p.price)}. ${p.description} ${p.stock==='agotado'?'Figura agotado.':p.stock==='verificado'?'Disponibilidad verificada.':'Disponibilidad por confirmar con el personal.'}`.trim();}
+export function openingAnswer(k,message,history=[]){
+ const q=normal(message),context=normal(history.slice(-4).map(m=>m.content).join(' '));
+ const intent=/abiert|cerrad|abr[ei]|cierr|atienden|atencion|horario|a que hora|hasta que hora/.test(q)||/\b(hoy|ahora|manana)\b/.test(q)&&/abiert|cerrad|horario|abren|cierran/.test(context);
+ if(!intent)return null;
+ if(!k.hours.length)return 'Todavía no tengo horarios registrados. Confirmalo con el personal para no indicarte un horario incorrecto.';
+ const now=new Date(k.checkedAt),{day,minute}=local(now);
+ const format=h=>h.opens.slice(0,5)+' a '+h.closes.slice(0,5)+(h.nextDay?' del día siguiente':'');
+ if(/manana/.test(q)){const turns=k.hours.filter(h=>h.day===(day+1)%7);return turns.length?'Mañana, según el horario registrado, atendemos de '+turns.map(format).join(' y de ')+'.':'No tengo un horario registrado para mañana. Confirmalo con el personal.';}
+ if(/horario/.test(q)&&!/hoy|ahora/.test(q))return null;
+ const turns=k.hours.filter(h=>h.day===day);
+ const active=k.hours.find(h=>h.day===day&&minute>=minutes(h.opens)&&(h.nextDay||minute<minutes(h.closes)))||k.hours.find(h=>h.day===(day+6)%7&&h.nextDay&&minute<minutes(h.closes));
+ const clock=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',hour:'2-digit',minute:'2-digit',hour12:false}).format(now);
+ if(active)return `¡Sí! Según el horario registrado, ahora estamos abiertos. Son las ${clock} en Perú y este turno termina a las ${active.closes.slice(0,5)}${active.day===day&&active.nextDay?' del día siguiente':''}. ¿Querés que te muestre la carta?`;
+ if(!turns.length)return 'No tengo un horario de apertura registrado para hoy. Confirmalo con el personal; no puedo asegurar que esté cerrado.';
+ const next=turns.filter(h=>minutes(h.opens)>minute).sort((a,b)=>minutes(a.opens)-minutes(b.opens))[0];
+ return `Hoy atendemos de ${turns.map(format).join(' y de ')}. Según ese horario, ahora estamos cerrados (son las ${clock} en Perú).${next?' Abrimos a las '+next.opens.slice(0,5)+'.':''}`;
+}
 export function structuredAnswer(k,message,history=[]){
  const q=normal(message),matched=k.products.find(p=>q.includes(normal(p.name)));
+ const opening=openingAnswer(k,message,history);if(opening)return opening;
  if(/(?:tengo|soy de)\s*(?:[1-9]|1[0-7])\s*anos|soy menor|menor de edad/.test(q))return 'Si sos menor de edad, no te recomendaré alcohol. Consultá con el personal las opciones sin alcohol y sus ingredientes.';
  if(/^(hola|holi|holaa+|buenas|buenos dias|buenas tardes|buenas noches|hey|que tal)[!?.\s]*$/.test(q))return '¡Hola! Bienvenido a '+k.name+'. Puedo ayudarte a elegir, consultar la carta o resolver tus dudas. ¿Qué te gustaría probar?';
  if(/^(gracias|muchas gracias|ok|listo|perfecto)[!?.\s]*$/.test(q))return '¡Con gusto! Si querés, seguimos viendo qué opción te conviene.';
