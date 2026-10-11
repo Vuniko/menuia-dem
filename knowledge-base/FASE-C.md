@@ -51,6 +51,9 @@ En Vercel se configuraron SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY únicamente pa
 - 20 pruebas Node de autenticación, permisos, asignación de campos, conflictos, precisión de versiones, cookies, validaciones y protección de Production.
 - 10 pruebas SQL reales de alta, propiedad, estado privado, promociones, rollback atómico de relaciones inválidas, bloqueo de edición obsoleta, vencimiento y rechazo de anónimos. Los datos ficticios se revirtieron.
 - Las pruebas SQL de la fase anterior ya cubren RLS entre dos restaurantes; no sustituyen la prueba de acceso con cuentas reales a través del navegador.
+- Las doce pruebas de regresión anteriores de chat y Training Lab pasaron.
+- Prueba visual con fixture aislada (sin conexión a Supabase) en 320, 375, 390, 414, 430 y 1280 píxeles: sin desbordamientos horizontales. Se comprobó editar precio/agotado, guardar una promoción y su selección de productos, guardar documentos como texto literal y cambiar a un negocio de solo lectura. El contenido HTML introducido no creó elementos ejecutables.
+- El helper server/admin-visual.test.mjs solo arranca con --visual y está excluido del despliegue por .vercelignore. No añade una vía de acceso ficticia al Preview real.
 - Pendiente que el usuario ingrese con su cuenta para confirmar el recorrido real de administración en el Preview. No se leyó ni pidió su contraseña.
 
 No incluye invitaciones de miembros, recuperación/alta de contraseña, carga binaria de fotos, eliminaciones masivas, pedidos, pagos ni IA evaluadora. Las imágenes se registran como URLs HTTPS. Las listas admiten hasta 500 registros por sección y 100 negocios; si se supera ese límite se informa, sin truncar silenciosamente.

@@ -90,9 +90,9 @@ function openEditor(resource,row=null){
   else control=`<input ${attrs} type="${f.type}" value="${escapeHTML(f.type==='datetime-local'?peruInput(value):f.type==='time'?String(value).slice(0,5):value)}" ${f.type==='number'?`min="${f.min??0}" max="${f.max??100000}" step="${f.step??1}"`:''} ${f.type==='url'?'placeholder="https://…"':''}>`;
   return `<label for="${fid}">${f.label}${control}${help}</label>`;
  }).join('');
- $('save-record').disabled=false;$('save-record').textContent=resource==='newBusiness'?'Crear negocio':'Guardar cambios';$('editor').showModal();
+ $('save-record').disabled=false;$('save-record').textContent=resource==='newBusiness'?'Crear negocio':'Guardar cambios';document.body.classList.add('editing');$('editor').showModal();
 }
-function closeEditor(force=false){if(saving&&!force)return;if(!force&&dirty&&!confirm('Tenés cambios sin guardar. ¿Querés descartarlos?'))return;$('editor').close();editing=null;dirty=false;}
+function closeEditor(force=false){if(saving&&!force)return;if(!force&&dirty&&!confirm('Tenés cambios sin guardar. ¿Querés descartarlos?'))return;$('editor').close();document.body.classList.remove('editing');editing=null;dirty=false;}
 function readValues(){const result={};for(const f of definitions[editing.resource]){
  const e=$('field-'+f.name);let value;
  if(f.type==='days')value=[...$('form-fields').querySelectorAll('input[name="days"]:checked')].map(e=>Number(e.value));
