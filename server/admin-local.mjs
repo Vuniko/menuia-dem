@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {createAdminHandler} from './admin.mjs';
 const port=Number(process.env.ADMIN_PORT||8810);
 const handler=createAdminHandler({env:{...process.env,ADMIN_LOCAL_ORIGIN:'http://127.0.0.1:'+port}});
-const files={'/admin/':'index.html','/admin/index.html':'index.html','/admin/panel.js':'panel.js','/admin/panel.css':'panel.css','/admin/recovery.html':'recovery.html','/admin/recovery.js':'recovery.js'};
+const files={'/admin/':'index.html','/admin/index.html':'index.html','/admin/panel.js':'panel.js','/admin/panel.css':'panel.css','/admin/assistant.js':'assistant.js','/admin/recovery.html':'recovery.html','/admin/recovery.js':'recovery.js'};
 http.createServer(async(req,res)=>{
  const path=new URL(req.url,'http://local').pathname;
  if(path==='/api/kb-admin')return handler(req,res);

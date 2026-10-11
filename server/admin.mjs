@@ -1,4 +1,5 @@
 import {randomUUID} from 'node:crypto';
+import {buildKnowledge,answerKnowledge} from './knowledge.mjs';
 
 class AdminError extends Error {constructor(status,message){super(message);this.status=status;}}
 const fail=(status,message)=>{throw new AdminError(status,message)};
@@ -147,13 +148,24 @@ export function createAdminHandler({env=process.env,fetcher=fetch}={}){
    }
    const restaurantId=id(req.method==='GET'?requestUrl.searchParams.get('restaurantId'):body.restaurantId);
    const member=(await memberships(token,user,restaurantId))[0];if(!member)fail(403,'No tenés acceso a este negocio.');
-   if(action==='bundle'&&req.method==='GET'){
+   if(action==='bundle'&&req.method==='GET'||action==='assistant'&&req.method==='POST'){
+    if(action==='assistant'&&(typeof body.message!=='string'||!body.message.trim()||body.message.length>500||!uuid(body.requestId)))fail(400,'Pregunta o identificador inválido.');
     const tables=['restaurants','categories','products','restaurant_faqs','promotions','promotion_products','business_hours','knowledge_documents','product_pairings'];
     const result=Object.fromEntries(await Promise.all(tables.map(async table=>{
      const rows=await supabase(query(table,{select:'*',[table==='restaurants'?'id':'restaurant_id']:'eq.'+restaurantId,limit:'501',...(table==='product_pairings'||table==='promotion_products'?{}:{order:table==='restaurants'?'name.asc':table==='business_hours'?'updated_at.asc':'created_at.asc'})}),{token});
      if(rows.length>500)fail(400,'Esta vista admite hasta 500 registros por sección.');return [table,rows];
     })));
-    respond(200,{...result,role:member.role,restaurantId});return;
+    if(action==='assistant'){
+     const history=Array.isArray(body.history)?body.history.slice(-6).filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string'&&m.content.length<=700).map(m=>({role:m.role,content:m.content})):[];
+     try{
+      const knowledge=buildKnowledge(result,restaurantId);
+      const answer=await answerKnowledge({knowledge,message:body.message,history,env,fetcher,reserve:async()=>{
+       const allowed=await supabase('/rest/v1/rpc/kb_reserve_assistant',{token,method:'POST',body:{r_id:restaurantId,request_id:body.requestId}});
+       if(allowed!==true)fail(429,'Alcanzaste el límite de pruebas o esta pregunta ya fue enviada. Probá más tarde.');
+      }});
+      respond(200,answer);
+     }catch(error){if(error instanceof AdminError)throw error;fail(503,error.message==='El conocimiento publicado supera el límite de esta prueba. Reducí los documentos o la carta.'?error.message:'No pudimos consultar el asistente. Revisá la configuración y volvé a intentar.');}
+    }else respond(200,{...result,role:member.role,restaurantId});return;
    }
    if(action!=='save'||req.method!=='POST')fail(404,'No encontrado.');
    if(!['owner','editor'].includes(member.role))fail(403,'Tu acceso es de solo lectura.');

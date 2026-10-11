@@ -24,7 +24,7 @@ if(process.argv.includes('--visual')){
   throw Error('Unknown fixture operation');
  };
  const handler=createAdminHandler({env:{SUPABASE_URL:'https://secknmhqqzjlirwwnsnf.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fixture',ADMIN_LOCAL_ORIGIN:'http://127.0.0.1:8811'},fetcher});
- const files={'/admin/':'index.html','/admin/panel.js':'panel.js','/admin/panel.css':'panel.css'};
+ const files={'/admin/':'index.html','/admin/panel.js':'panel.js','/admin/panel.css':'panel.css','/admin/assistant.js':'assistant.js'};
  http.createServer(async(req,res)=>{const path=new URL(req.url,'http://local').pathname;if(path==='/api/kb-admin')return handler(req,res);
   if(files[path]){let bytes=await readFile(new URL('../admin/'+files[path],import.meta.url));if(path==='/admin/')bytes=Buffer.from(bytes.toString().replace('Entorno de pruebas','Prueba visual · datos ficticios'));
    res.writeHead(200,{'Content-Type':path.endsWith('.js')?'text/javascript':path.endsWith('.css')?'text/css':'text/html','Cache-Control':'no-store'});res.end(bytes);return;}
