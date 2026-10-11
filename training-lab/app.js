@@ -58,3 +58,13 @@ $('gemini-check').onclick=async()=>{
   $('gemini-status').textContent=result.provider==='gemini'&&result.answer?'Gemini respondió ('+result.model+', '+result.ms+' ms). '+result.answer:'Gemini no se pudo validar: '+(result.error||result.status);
  }catch{$('gemini-status').textContent='No se pudo validar Gemini.'}finally{$('gemini-check').disabled=false;$('evaluate').disabled=false}
 };
+
+// Labels expose the existing table fields in the mobile card presentation.
+function labelMobileRows(){
+ for(const table of document.querySelectorAll('.tablewrap table')){
+  const labels=[...table.querySelectorAll('thead th')].map(th=>th.textContent);
+  for(const row of table.querySelectorAll('tbody tr'))[...row.children].forEach((cell,i)=>cell.dataset.label=labels[i]||'');
+ }
+}
+for(const body of document.querySelectorAll('.tablewrap tbody'))new MutationObserver(labelMobileRows).observe(body,{childList:true});
+labelMobileRows();
