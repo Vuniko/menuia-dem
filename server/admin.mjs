@@ -56,6 +56,8 @@ export function validateValues(resource,values,{creating=false,now=new Date()}={
 
 export function createAdminHandler({env=process.env,fetcher=fetch}={}){
  const hosted=Boolean(env.VERCEL_ENV),cookieName=hosted?'__Host-menuia_admin':'menuia_admin';
+ const recoveryCookie=hosted?'__Host-menuia_recovery':'menuia_recovery';
+ const recoveryURL='https://menuia-dem-git-feature-menuia-knowledge-base-v1-vuniko.vercel.app/admin/recovery.html';
  const publicKey=()=>{const key=env.SUPABASE_PUBLISHABLE_KEY||'';if(key.startsWith('sb_publishable_'))return true;try{return JSON.parse(Buffer.from(key.split('.')[1],'base64url')).role==='anon'}catch{return false}};
  const configured=()=>env.SUPABASE_URL&&publicKey();
  const base=()=>{try{const u=new URL(env.SUPABASE_URL);if(u.protocol!=='https:'||u.username||u.password||u.pathname!=='/'||u.hostname!=='secknmhqqzjlirwwnsnf.supabase.co')throw Error();return u.origin}catch{fail(503,'El proyecto de pruebas no está configurado.')}};
@@ -65,6 +67,8 @@ export function createAdminHandler({env=process.env,fetcher=fetch}={}){
   let response;try{response=await fetcher(base()+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(15000)});}catch{fail(503,'No pudimos conectar con el proyecto de pruebas.');}
   let data=null;try{data=await response.json()}catch{}
   if(!response.ok){
+   if(path.startsWith('/auth/v1/recover'))fail(response.status===429?429:503,response.status===429?'Esperá unos minutos antes de solicitar otro correo.':'No pudimos solicitar el correo de recuperación.');
+   if(path==='/auth/v1/user'&&method==='PUT')fail(response.status===422?400:401,'No se pudo guardar la contraseña. Usá una contraseña distinta y revisá que el enlace siga vigente.');
    if(path.startsWith('/auth/'))fail(response.status===429?429:401,response.status===429?'Demasiados intentos. Esperá un momento.':'Sesión o credenciales inválidas.');
    if(response.status===401||response.status===403||data?.code==='42501')fail(403,'No tenés permiso para realizar este cambio.');
    if(data?.code==='23505')fail(409,'Ese registro ya existe. Revisá el nombre, slug o combinación.');
@@ -102,6 +106,29 @@ export function createAdminHandler({env=process.env,fetcher=fetch}={}){
     const session=await supabase('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password}});
     if(typeof session?.access_token!=='string'||!uuid(session.user?.id))fail(401,'No se pudo iniciar la sesión.');
     cookie(session.access_token,Math.min(3600,session.expires_in||3600));respond(200,{user:{email:session.user.email}});return;
+   }
+   const recoveryToken=String(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith(recoveryCookie+'='))?.slice(recoveryCookie.length+1);
+   const setRecovery=(value,seconds)=>res.setHeader('Set-Cookie',`${recoveryCookie}=${value}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${seconds}${hosted?'; Secure':''}`);
+   if(action==='recover'&&req.method==='POST'){
+    const email=text(254,true)(body.email);if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail(400,'Ingresá un correo válido.');
+    await supabase('/auth/v1/recover?'+new URLSearchParams({redirect_to:recoveryURL}),{method:'POST',body:{email}});
+    respond(200,{message:'Si el correo tiene una cuenta, recibirás un enlace para elegir una contraseña nueva.'});return;
+   }
+   if(action==='recoveryExchange'&&req.method==='POST'){
+    if(body.type!=='recovery'||typeof body.accessToken!=='string'||body.accessToken.length>8192||!/^[-\w]+\.[-\w]+\.[-\w]+$/.test(body.accessToken))fail(400,'Enlace de recuperación inválido.');
+    const recoveredUser=await supabase('/auth/v1/user',{token:body.accessToken});if(!uuid(recoveredUser?.id))fail(401,'Enlace inválido o vencido.');
+    setRecovery(body.accessToken,600);respond(200,{ready:true});return;
+   }
+   if(action==='recoverySession'&&req.method==='GET'){
+    if(!recoveryToken||recoveryToken.length>8192)fail(401,'Abrí el enlace de recuperación recibido por correo.');
+    const recoveredUser=await supabase('/auth/v1/user',{token:recoveryToken});if(!uuid(recoveredUser?.id))fail(401,'Enlace inválido o vencido.');respond(200,{ready:true});return;
+   }
+   if(action==='recoverySave'&&req.method==='POST'){
+    if(!recoveryToken||recoveryToken.length>8192)fail(401,'El enlace venció. Solicitá uno nuevo.');
+    if(typeof body.password!=='string'||body.password.length<12||body.password.length>128)fail(400,'Usá una contraseña de 12 a 128 caracteres.');
+    const recoveredUser=await supabase('/auth/v1/user',{token:recoveryToken});if(!uuid(recoveredUser?.id))fail(401,'Enlace inválido o vencido.');
+    await supabase('/auth/v1/user',{token:recoveryToken,method:'PUT',body:{password:body.password}});
+    setRecovery('',0);respond(200,{message:'Contraseña actualizada. Ya podés ingresar al panel.'});return;
    }
    const rawCookie=String(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith(cookieName+'='));const token=rawCookie?.slice(cookieName.length+1);
    if(action==='logout'&&req.method==='POST'){cookie('',0);if(token){try{await supabase('/auth/v1/logout?scope=local',{token,method:'POST'})}catch{}}respond(200,{ok:true});return;}
