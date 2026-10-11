@@ -1,0 +1,30 @@
+begin;
+set local statement_timeout='30s';
+create temporary table assistant_fixture(k text primary key,v uuid not null);
+insert into assistant_fixture select k,gen_random_uuid() from unnest(array['user','business','foreign','request']) k;
+do $$ begin execute format('grant usage on schema %I to authenticated,anon',(select nspname from pg_namespace where oid=pg_my_temp_schema()));end $$;
+grant select on assistant_fixture to authenticated,anon;
+insert into auth.users(id,aud,role,email) select v,'authenticated','authenticated',v::text||'@example.invalid' from assistant_fixture where k='user';
+insert into public.restaurants(id,name,slug) select v,'Quota Test',v::text from assistant_fixture where k in('business','foreign');
+insert into public.restaurant_members(restaurant_id,user_id,role) values((select v from assistant_fixture where k='business'),(select v from assistant_fixture where k='user'),'owner');
+select set_config('request.jwt.claim.sub',(select v::text from assistant_fixture where k='user'),true);
+set local role authenticated;
+do $$ declare r uuid:=(select v from assistant_fixture where k='business');q uuid:=(select v from assistant_fixture where k='request');begin
+ if public.kb_reserve_assistant(r,q) is distinct from true then raise exception 'first reservation denied';end if;
+ if public.kb_reserve_assistant(r,q) is distinct from false then raise exception 'duplicate accepted';end if;
+ if public.kb_reserve_assistant(r,gen_random_uuid()) is distinct from false then raise exception 'cooldown bypass';end if;
+ begin perform public.kb_reserve_assistant((select v from assistant_fixture where k='foreign'),gen_random_uuid());raise exception 'cross business accepted';exception when insufficient_privilege then null;end;
+ begin perform count(*) from public.kb_assistant_reservations;raise exception 'raw quota data exposed';exception when insufficient_privilege then null;end;
+end $$;
+reset role;
+-- Fill quota using disposable fixtures; dates predate the cooldown.
+update public.kb_assistant_reservations set created_at=clock_timestamp()-interval '6 seconds' where restaurant_id=(select v from assistant_fixture where k='business');
+insert into public.kb_assistant_reservations select (select v from assistant_fixture where k='business'),gen_random_uuid(),(select v from assistant_fixture where k='user'),clock_timestamp()-interval '6 seconds' from generate_series(1,499);
+set local role authenticated;
+do $$ begin if public.kb_reserve_assistant((select v from assistant_fixture where k='business'),gen_random_uuid()) is distinct from false then raise exception 'daily quota bypass';end if;end $$;
+reset role;
+set local role anon;
+do $$ begin begin perform public.kb_reserve_assistant((select v from assistant_fixture where k='business'),gen_random_uuid());raise exception 'anonymous accepted';exception when insufficient_privilege then null;end;end $$;
+reset role;
+select 'PASS: 7 quota checks; synthetic data rolled back' as result;
+rollback;

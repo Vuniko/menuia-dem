@@ -1,0 +1,15 @@
+# Training Lab conectado al negocio en Preview
+
+Ruta `/training-lab/?modo=negocio`. También hay un enlace desde el panel. Conserva el importador, filtros, revisión del banco, exportación CSV, evaluador serial y modo anterior de carta fija. El modo nuevo requiere sesión del panel y pertenencia al negocio. Propietarios/editores ejecutan y revisan; lectores consultan historial.
+
+La evaluación envía únicamente de 1 a 10 preguntas seleccionadas y expectativas de hasta 2000 caracteres. El banco completo permanece en el navegador. Se guarda un snapshot de conocimiento publicado del negocio y todas las preguntas en una transacción. Cada pregunta reutiliza answerKnowledge del panel/menú con historial vacío y ese snapshot. Por ello las comparaciones usan los datos y el momento de creación del lote, no un precio que haya cambiado a mitad de la ejecución.
+
+Acciones autenticadas de kb-admin: trainingStart, trainingQuestion, trainingList, trainingRead, trainingReview y trainingCancel. Reutilizan identidad verificada, Origin exacto, RLS y JWT del usuario; siguen deshabilitadas en Production. La migración 006 añade funciones SECURITY INVOKER para alta atómica, reclamo exclusivo y guardado/finalización. No se ampliaron políticas de lectura pública ni se usa service_role.
+
+Un negocio admite un lote activo por diez minutos y hasta 50 lotes/día por estas funciones. Un resultado reclamado no se vuelve a ejecutar automáticamente, incluso si se pierde la respuesta HTTP. El cupo de Gemini sigue siendo el compartido de 500/día y cinco segundos entre llamadas. El evaluador existente conserva pausa serial de 5,5 segundos. Los errores quedan guardados; recibir texto nunca marca un acierto. Una interrupción del navegador puede dejar una pregunta en curso: consultar el historial antes de iniciar otro lote. Cancelar detiene preguntas posteriores; una petición que ya llegó al servidor puede terminar y guardar su resultado.
+
+El historial muestra los últimos 50 lotes por negocio, con preguntas, expectativas, respuestas, proveedor, modelo, tiempo y revisión humana. El porcentaje mostrado se refiere solo a respuestas marcadas manualmente correcta/incorrecta, no a todas las preguntas ni a una evaluación semántica automática. Exportación JSON incluye el snapshot. Cambiar una revisión no modifica conocimiento, prompts ni pesos del modelo.
+
+Pruebas iniciales: 52 pruebas Node del panel/motor/API pública/training, 12 regresiones del importador/evaluador/endpoints previos y prueba SQL real de lotes, idempotencia, claims, finalización, snapshot inmutable, aislamiento y denegación a anónimos. Los datos SQL ficticios se revirtieron. Migración aplicada solo al piloto. La comprobación del flujo de navegador y persistencia se realiza en Preview antes de entregar.
+
+Límites: no hay calificación automática, búsqueda vectorial, entrenamiento del modelo, ejecución masiva de 2200 preguntas ni modificación automática de la carta. Las mejoras requieren revisar errores y corregir datos o lógica, y volver a evaluar con un snapshot nuevo. El modo legado conserva sus resultados únicamente en memoria.

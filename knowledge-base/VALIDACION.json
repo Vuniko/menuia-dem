@@ -1,0 +1,23 @@
+{
+  "phase": "B",
+  "date": "2026-10-11",
+  "project": "menuia-piloto",
+  "supabase_ref": "secknmhqqzjlirwwnsnf",
+  "migration": "202610110001_knowledge_base.sql",
+  "migration_application": "manual_supabase_sql_editor",
+  "migration_result": "Success. No rows returned",
+  "database_tests": {
+    "file": "supabase/tests/knowledge_base_rls.sql",
+    "checks_passed": 24,
+    "result": "PASS: 24 checks; synthetic data rolled back",
+    "roles": ["authenticated", "anon"],
+    "test_data_persisted": false,
+    "uses_real_jwt_http_requests": false
+  },
+  "gemini_requests": 0,
+  "production_application_changed": false,
+  "production_environment_changed": false,
+  "pull_requests_merged": false,
+  "complete_mvp": false,
+  "pending": ["Admin UI and server authentication", "Structured assistant by restaurant", "Persistent evaluations UI", "Durable quotas", "HTTP tests with real JWTs", "Preview configuration"]
+}
