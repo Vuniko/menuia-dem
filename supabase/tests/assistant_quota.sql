@@ -18,8 +18,8 @@ do $$ declare r uuid:=(select v from assistant_fixture where k='business');q uui
 end $$;
 reset role;
 -- Fill quota using disposable fixtures; dates predate the cooldown.
-update public.kb_assistant_reservations set created_at=clock_timestamp()-interval '46 seconds' where restaurant_id=(select v from assistant_fixture where k='business');
-insert into public.kb_assistant_reservations select (select v from assistant_fixture where k='business'),gen_random_uuid(),(select v from assistant_fixture where k='user'),clock_timestamp()-interval '46 seconds' from generate_series(1,19);
+update public.kb_assistant_reservations set created_at=clock_timestamp()-interval '6 seconds' where restaurant_id=(select v from assistant_fixture where k='business');
+insert into public.kb_assistant_reservations select (select v from assistant_fixture where k='business'),gen_random_uuid(),(select v from assistant_fixture where k='user'),clock_timestamp()-interval '6 seconds' from generate_series(1,499);
 set local role authenticated;
 do $$ begin if public.kb_reserve_assistant((select v from assistant_fixture where k='business'),gen_random_uuid()) is distinct from false then raise exception 'daily quota bypass';end if;end $$;
 reset role;
