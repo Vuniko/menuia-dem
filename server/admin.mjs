@@ -1,5 +1,6 @@
 import {randomUUID} from 'node:crypto';
 import {buildKnowledge,answerKnowledge} from './knowledge.mjs';
+import {trainingAction} from './training.mjs';
 
 class AdminError extends Error {constructor(status,message){super(message);this.status=status;}}
 const fail=(status,message)=>{throw new AdminError(status,message)};
@@ -148,13 +149,16 @@ export function createAdminHandler({env=process.env,fetcher=fetch}={}){
    }
    const restaurantId=id(req.method==='GET'?requestUrl.searchParams.get('restaurantId'):body.restaurantId);
    const member=(await memberships(token,user,restaurantId))[0];if(!member)fail(403,'No tenés acceso a este negocio.');
-   if(action==='bundle'&&req.method==='GET'||action==='assistant'&&req.method==='POST'){
+   const train=async bundle=>{try{await trainingAction({action,method:req.method,body,url:requestUrl,restaurantId,role:member.role,supabase:(path,options={})=>supabase(path,{...options,token}),query,respond,env,fetcher,bundle});}catch(e){fail(e.status||503,e.status?e.message:'No pudimos guardar o evaluar este lote.');}};
+   if(action.startsWith('training')&&action!=='trainingStart'){await train();return;}
+   if(action==='bundle'&&req.method==='GET'||action==='assistant'&&req.method==='POST'||action==='trainingStart'&&req.method==='POST'){
     if(action==='assistant'&&(typeof body.message!=='string'||!body.message.trim()||body.message.length>500||!uuid(body.requestId)))fail(400,'Pregunta o identificador inválido.');
     const tables=['restaurants','categories','products','restaurant_faqs','promotions','promotion_products','business_hours','knowledge_documents','product_pairings'];
     const result=Object.fromEntries(await Promise.all(tables.map(async table=>{
      const rows=await supabase(query(table,{select:'*',[table==='restaurants'?'id':'restaurant_id']:'eq.'+restaurantId,limit:'501',...(table==='product_pairings'||table==='promotion_products'?{}:{order:table==='restaurants'?'name.asc':table==='business_hours'?'updated_at.asc':'created_at.asc'})}),{token});
      if(rows.length>500)fail(400,'Esta vista admite hasta 500 registros por sección.');return [table,rows];
     })));
+    if(action==='trainingStart'){await train(result);return;}
     if(action==='assistant'){
      const history=Array.isArray(body.history)?body.history.slice(-6).filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string'&&m.content.length<=700).map(m=>({role:m.role,content:m.content})):[];
      try{
