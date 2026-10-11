@@ -35,14 +35,15 @@ export function structuredAnswer(k,message,history=[]){
  if(/^(hola|holi|holaa+|buenas|buenos dias|buenas tardes|buenas noches|hey|que tal)[!?.\s]*$/.test(q))return '¡Hola! Bienvenido a '+k.name+'. Puedo ayudarte a elegir, consultar la carta o resolver tus dudas. ¿Qué te gustaría probar?';
  if(/^(gracias|muchas gracias|ok|listo|perfecto)[!?.\s]*$/.test(q))return '¡Con gusto! Si querés, seguimos viendo qué opción te conviene.';
  if(/^(chau|chao|adios|hasta luego)[!?.\s]*$/.test(q))return '¡Hasta luego! Acá estoy cuando quieras volver a consultar.';
- const reference=matched||(/precio|cuanto|ingrediente|alerg|gluten|tiene|lleva|eso|ese|esa/.test(q)?[...history].reverse().map(m=>k.products.find(p=>normal(m.content).includes(normal(p.name)))).find(Boolean):null);
+ const faq=k.faqs.find(f=>normal(f.question).replace(/[¿?]/g,'').trim()===q.replace(/[¿?]/g,'').trim());if(faq)return faq.answer;
+ const reference=matched||(/ingrediente|alerg|gluten|\b(precio|cuanto|tiene|lleva|eso|ese|esa)\b/.test(q)?[...history].reverse().map(m=>k.products.find(p=>normal(m.content).includes(normal(p.name)))).find(Boolean):null);
  if(/combina|combinacion|maridaje|acompan/.test(q)){
   const named=matched||k.products.find(p=>normal(p.name).split(' ').some(word=>word.length>=3&&new RegExp('\\b'+word+'\\b').test(q)));
   const pairs=(k.pairings||[]).filter(x=>!named||x.productId===named.id||x.pairedProductId===named.id).map(x=>({a:k.products.find(p=>p.id===x.productId),b:k.products.find(p=>p.id===x.pairedProductId),note:x.note})).filter(x=>x.a.stock!=='agotado'&&x.b.stock!=='agotado');
   return pairs.length?pairs.map(x=>`${x.a.name} (${money(x.a.price)}) + ${x.b.name} (${money(x.b.price)}). Total por separado: ${money((Math.round(Number(x.a.price)*100)+Math.round(Number(x.b.price)*100))/100)}. ${x.note} ${x.a.stock==='verificado'&&x.b.stock==='verificado'?'Disponibilidad verificada.':'Confirmá disponibilidad con el personal.'}`).join('\n'):'No hay una combinación publicada y disponible registrada para esa consulta.';
  }
  if(/alerg|gluten|celiac|intoleran|lactosa/.test(q))return reference?`${reference.name}. Alérgenos declarados: ${reference.allergens.join(', ')||'sin información registrada'}. Esta declaración no garantiza ausencia de otros alérgenos ni de trazas; confirmá con el personal antes de consumir.`:'La carta no certifica ausencia de alérgenos ni de contaminación cruzada. Confirmá con el personal antes de consumir. ¿Qué producto querés consultar?';
- if(reference)return /ingrediente|lleva|tiene|contiene/.test(q)?`${reference.name}: ingredientes registrados: ${reference.ingredients.join(', ')||'pendientes de confirmar'}. La lista no certifica ausencia de otros ingredientes o trazas.`:productLine(reference);
+ if(reference)return /ingrediente|\b(lleva|tiene|contiene)\b/.test(q)?`${reference.name}: ingredientes registrados: ${reference.ingredients.join(', ')||'pendientes de confirmar'}. La lista no certifica ausencia de otros ingredientes o trazas.`:productLine(reference);
  const amount=/(?:presupuesto|tengo|hasta|cuento con|maximo)\s*(?:de\s*)?(?:s\/?\s*\.?\s*)?(\d+(?:[.,]\d{1,2})?)/.exec(q);
  if(amount){const cents=Math.round(Number(amount[1].replace(',','.'))*100);const options=k.products.filter(p=>p.stock!=='agotado'&&Math.round(Number(p.price)*100)<=cents).sort((a,b)=>Number(b.price)-Number(a.price)).slice(0,2);return options.length?options.map(p=>`${productLine(p)} Total: ${money(p.price)}; saldo: ${money((cents-Math.round(Number(p.price)*100))/100)}.`).join('\n'):'No encuentro productos publicados dentro de ese presupuesto.';}
  if(/promocion|oferta|happy hour|descuento/.test(q))return k.promotions.length?k.promotions.map(p=>`${p.title}${p.price===null?'':': '+money(p.price)}. ${p.description||''} ${p.conditions||''}`).join('\n'):'No hay promociones publicadas con vigencia confirmada para este momento.';
@@ -50,7 +51,7 @@ export function structuredAnswer(k,message,history=[]){
  if(/yape|plin|tarjeta|pago|efectivo/.test(q))return k.payments?.length?'Métodos de pago confirmados: '+k.payments.join(', ')+'.':'No hay métodos de pago verificados. Confirmá con el personal.';
  if(/direccion|donde queda|telefono|whatsapp/.test(q))return Object.values(k.contact).some(Boolean)?Object.entries(k.contact).filter(([,v])=>v).map(([name,v])=>name+': '+v).join('\n'):'No hay datos de contacto registrados.';
  if(/menu|carta|que tienen|productos/.test(q))return k.products.length?k.products.map(productLine).join('\n'):'Todavía no hay productos publicados en categorías publicadas.';
- const faq=k.faqs.find(f=>normal(f.question).replace(/[¿?]/g,'').trim()===q.replace(/[¿?]/g,'').trim());if(faq)return faq.answer;
+
  return null;
 }
 export async function answerKnowledge({knowledge,message,history=[],env=process.env,fetcher=fetch,reserve}){
