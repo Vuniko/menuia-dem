@@ -1,5 +1,6 @@
 import {filterProducts,mentionedProducts,money,safeImage,productQuestion,validateMenu,localAssistantOrigin} from './menu-model.mjs';
 import {chatPayload,requestChat,ChatFailure} from './chat-transport.mjs';
+import {promotionSummary} from './promotion-model.mjs';
 const $=id=>document.getElementById(id),connected=document.body.dataset.source==='knowledge';
 const slug=new URLSearchParams(location.search).get('negocio')||'cerveceria-demo';
 const state={menu:null,category:'',search:'',view:'home',history:[],busy:false,loading:false,lastQuestion:'',detail:null,error:false,failed:false,retryAt:0};
@@ -47,10 +48,11 @@ function renderMenu(){
 }
 function renderPromotions(){
  $('promotions').replaceChildren();$('empty-promos').hidden=state.menu.promotions.length>0;
- for(const offer of state.menu.promotions){const card=create('article',undefined,'offer-card');card.append(create('p','OFERTA VIGENTE','eyebrow'),create('h2',offer.title),create('p',String(offer.description||'').replace(/^PROMOCIÓN FICTICIA DE PRUEBAS\.\s*/,'')));
+ for(const offer of state.menu.promotions){const card=create('article',undefined,'offer-card');card.append(create('p',connected?'OFERTA VIGENTE':'PROMOCIÓN DE EJEMPLO','eyebrow'),create('h2',offer.title),create('p',String(offer.description||'').replace(/^PROMOCIÓN FICTICIA DE PRUEBAS\.\s*/,'')));
   if(offer.price!==null&&offer.price!==undefined)card.append(create('strong',money(offer.price),'product-price'));
+  const summary=!connected&&promotionSummary(offer,state.menu.products);if(summary)card.append(create('p','Precio normal '+money(summary.originalTotal)+' · Ahorrás '+money(summary.savings)));
   if(offer.conditions)card.append(create('p',offer.conditions));
-  if(offer.starts_at&&offer.ends_at){const format=s=>new Intl.DateTimeFormat('es-PE',{dateStyle:'medium',timeStyle:'short',timeZone:'America/Lima'}).format(new Date(s));card.append(create('p',format(offer.starts_at)+' — '+format(offer.ends_at)));}else card.append(create('p','Vigente al consultar esta carta. Las fechas exactas no se incluyen en esta vista.'));
+  if(offer.validityLabel)card.append(create('p',offer.validityLabel));else if(offer.starts_at&&offer.ends_at){const format=s=>new Intl.DateTimeFormat('es-PE',{dateStyle:'medium',timeStyle:'short',timeZone:'America/Lima'}).format(new Date(s));card.append(create('p',format(offer.starts_at)+' — '+format(offer.ends_at)));}else card.append(create('p','Vigente al consultar esta carta. Las fechas exactas no se incluyen en esta vista.'));
   $('promotions').append(card);
  }
 }
@@ -74,7 +76,8 @@ async function load(){
  if(!state.menu)for(const view of ['home','menu','promos'])$(view+'-view').hidden=true;
  try{
   const url=connected?'/api/kb-menu?'+new URLSearchParams({slug}):'/assets/demo-menu.json';
-  const data=await readResponse(await fetch(url,{signal:AbortSignal.timeout(20000),cache:'no-store'}));state.menu=validateMenu(data);if(state.category&&!data.categories.some(c=>c.id===state.category))state.category='';render();showView(state.view,{updateHash:false,focus:false});
+  const urls=connected?[url]:[url,'/assets/demo-promotions.json'];
+  const [data,promotions]=await Promise.all(urls.map(async endpoint=>readResponse(await fetch(endpoint,{signal:AbortSignal.timeout(20000),cache:'no-store'}))));if(!connected)data.promotions=promotions.map(p=>promotionSummary(p,data.products)).filter(Boolean);state.menu=validateMenu(data);if(state.category&&!data.categories.some(c=>c.id===state.category))state.category='';render();showView(state.view,{updateHash:false,focus:false});
  }catch(error){state.menu=null;state.error=true;$('load-error-message').textContent=error.message;$('load-error').hidden=false;$('page-status').textContent='Carta no disponible. No se sustituyeron los datos por ejemplos.';for(const view of ['home','menu','promos'])$(view+'-view').hidden=true;$('featured').replaceChildren();$('products').replaceChildren();}
  finally{state.loading=false;document.body.classList.remove('loading');$('main').setAttribute('aria-busy','false');$('refresh-menu').disabled=false;}
 }
