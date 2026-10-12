@@ -25,10 +25,16 @@ try{
  const migrations=new URL('../supabase/migrations/',import.meta.url);
  for(const file of (await readdir(migrations)).filter(x=>x.endsWith('.sql')).sort())await db.exec(await readFile(new URL(file,migrations),'utf8'));
  await db.exec("insert into public.restaurants(name,slug,published) values('Offline fictitious demo','cerveceria-demo',false);");
+ if(args.includes('--hardening-review'))await db.exec(await readFile(new URL('../supabase/review/admin-hardening-draft.sql',import.meta.url),'utf8'));
  const tests=new URL('../supabase/tests/',import.meta.url);
  for(const file of (await readdir(tests)).filter(x=>x.endsWith('.sql')).sort()){
   const result=await db.exec(await readFile(new URL(file,tests),'utf8'));
   console.log(file,JSON.stringify(result.flatMap(r=>r.rows).filter(r=>r.result)));
+ }
+ if(args.includes('--security-probe')){
+  await db.exec("select set_config('menuia.probe.expected_protected','"+(args.includes('--hardening-review')?'true':'false')+"',false)");
+  const result=await db.exec(await readFile(new URL('../supabase/review/promotion-oracle-probe.sql',import.meta.url),'utf8'));
+  console.log('Offline security probe',JSON.stringify(result.flatMap(r=>r.rows).filter(r=>r.finding)));
  }
  console.log('Offline SQL suites passed. This does not verify the deployed schema, grants or Supabase Auth.');
 }catch(error){console.error('Offline SQL failed:',error.code||'',error.message);process.exitCode=1;}finally{await db.close();}

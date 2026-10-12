@@ -1,5 +1,7 @@
 # Validación administrativa — 12 de octubre de 2026
 
+Actualización: la inspección de catálogos desplegados y advisors se completó en [SECURITY-FOLLOWUP.md](SECURITY-FOLLOWUP.md). Las limitaciones de este informe describen la primera validación; Auth/CRUD remoto sigue pendiente.
+
 Base: `feature/menuia-knowledge-base-v1`, commit `b84a64180277e01b91035fe7db8bb1a0bb565fea`.
 Rama de trabajo: `fix/menuia-admin-validation`. Sin cambios en main, Production, variables, credenciales o bases remotas. No se ejecutaron solicitudes reales a Gemini, correos de recuperación ni escrituras en Supabase.
 
