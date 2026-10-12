@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {filterProducts,mentionedProducts,safeImage,productQuestion,validateMenu} from '../assets/menu-model.mjs';
+import {filterProducts,mentionedProducts,safeImage,productQuestion,validateMenu,localAssistantOrigin} from '../assets/menu-model.mjs';
 const menu=JSON.parse(await readFile(new URL('../assets/demo-menu.json',import.meta.url),'utf8'));
 test('illustrative prices and names match the unchanged server source exactly',async()=>{
  const server=await readFile(new URL('./index.js',import.meta.url),'utf8');const from=server.indexOf('const products='),to=server.indexOf('const recent=',from);const ctx=vm.createContext({});vm.runInContext(server.slice(from,to)+'\nglobalThis.catalog=products;',ctx);
@@ -29,4 +29,9 @@ test('images reject javascript, insecure remote hosts and embedded credentials',
 });
 test('bad connected data fails closed rather than silently substituting sample data',()=>{
  assert.throws(()=>validateMenu({business:{name:'Invalid'},products:[],categories:[]}));assert.throws(()=>validateMenu({...menu,products:[{...menu.products[0],price:-1}]}));assert.throws(()=>validateMenu({...menu,products:[{...menu.products[0],categoryId:'foreign'}]}));assert.equal(validateMenu(menu),menu);
+ for(const price of [null,true,'',Infinity])assert.throws(()=>validateMenu({...menu,products:[{...menu.products[0],price}]}));
+});
+test('optional local connection keeps the legacy setting but rejects unsafe destinations',()=>{
+ assert.equal(localAssistantOrigin('https://demo.trycloudflare.com/'),'https://demo.trycloudflare.com');
+ for(const value of ['javascript:alert(1)','http://example.invalid','https://user:pass@example.invalid','https://example.invalid/api/chat','https://example.invalid/?key=x','https://example.invalid/#x'])assert.equal(localAssistantOrigin(value),null);
 });

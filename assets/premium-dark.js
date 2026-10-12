@@ -1,10 +1,23 @@
-import {filterProducts,mentionedProducts,money,safeImage,productQuestion,validateMenu} from './menu-model.mjs';
+import {filterProducts,mentionedProducts,money,safeImage,productQuestion,validateMenu,localAssistantOrigin} from './menu-model.mjs';
 const $=id=>document.getElementById(id),connected=document.body.dataset.source==='knowledge';
 const slug=new URLSearchParams(location.search).get('negocio')||'cerveceria-demo';
 const state={menu:null,category:'',search:'',view:'home',history:[],busy:false,loading:false,lastQuestion:'',detail:null,error:false};
 const suggestions=[...$('suggestions').querySelectorAll('button')];
-let dialogReturn=null,detailFromChat=false;
+let dialogReturn=null,chatReturn=null,detailFromChat=false;
+let chatOrigin=location.origin;
 const create=(tag,text,className)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;};
+if(connected){$('demo-label').textContent='DEMO · DATOS DE PRUEBA';$('connected-link').hidden=true;}
+// Preserve the existing optional local backend setting; never use it in hosted
+// Preview/Production or for the business-scoped Knowledge Base route.
+if(!connected&&!location.hostname.endsWith('.vercel.app')){
+ let saved='';try{saved=localStorage.getItem('menuia_ai_endpoint')||'';}catch{}
+ chatOrigin=localAssistantOrigin(saved)||location.origin;
+ const details=create('details',undefined,'local-connection'),summary=create('summary','Configurar asistente local'),label=create('label','Dirección HTTPS del servidor de prueba'),input=create('input'),save=create('button','Guardar conexión','secondary'),reset=create('button','Usar servidor de esta página','text-button'),status=create('p');
+ input.type='url';input.id='local-endpoint';input.value=saved;input.placeholder='https://…';label.htmlFor=input.id;save.type='button';reset.type='button';status.setAttribute('role','status');
+ save.onclick=()=>{const origin=localAssistantOrigin(input.value.trim());if(!origin){status.textContent='Ingresá una dirección HTTPS sin rutas, credenciales ni parámetros.';return;}try{localStorage.setItem('menuia_ai_endpoint',origin);chatOrigin=origin;status.textContent='Conexión guardada. Las nuevas preguntas utilizarán este servidor.';}catch{status.textContent='El navegador no permitió guardar la conexión.';}};
+ reset.onclick=()=>{try{localStorage.removeItem('menuia_ai_endpoint');}catch{}chatOrigin=location.origin;input.value='';state.history=[];status.textContent='Usaremos el servidor de esta página.';};
+ details.append(summary,label,input,save,reset,status);document.querySelector('.chat-compose').prepend(details);
+}
 const icons={home:'M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9',menu:'M4 4h16v16H4zM8 8h8M8 12h8M8 16h5',promos:'M3 3h8l10 10-8 8L3 11zM7 7h.01',chat:'M4 4h16v12H9l-5 5zM8 9h8M8 12h5'};
 for(const slot of document.querySelectorAll('[data-icon]')){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');const path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',icons[slot.dataset.icon]);svg.append(path);slot.append(svg);}
 
@@ -20,7 +33,8 @@ function productCard(product){
  const card=create('article',undefined,'product-card'),button=create('button',undefined,'product-open');button.type='button';button.setAttribute('aria-label','Ver '+product.name+', '+money(product.price));button.dataset.productId=product.id;
  const body=create('div',undefined,'product-body');body.append(create('span',state.menu.categories.find(c=>c.id===product.categoryId)?.name||'Carta','card-category'));
  const meta=create('div',undefined,'product-meta');meta.append(create('h3',product.name),create('span',money(product.price),'product-price'));
- const description=String(product.description||'').replace(/^PRODUCTO FICTICIO DE DEMOSTRACIÓN\.\s*/,'');
+ const fullDescription=String(product.description||'').replace(/^PRODUCTO FICTICIO DE DEMOSTRACIÓN\.\s*/,'');
+ const description=fullDescription.length>120?fullDescription.slice(0,117)+'…':fullDescription;
  const footer=create('div',undefined,'card-footer');footer.append(create('span',stockLabel(product)),create('span','Ver detalles ↗'));
  body.append(meta,create('p',description,'product-description'),footer);button.append(image(product),body);button.onclick=()=>openDetail(product.id);card.append(button);return card;
 }
@@ -47,7 +61,7 @@ function render(){
  $('demo-label').textContent=connected?'DEMO · DATOS DE PRUEBA':'DEMO · DATOS DE EJEMPLO';
  $('chat-context').textContent=menu.business.name+' · '+(connected?'carta de prueba conectada':'carta ilustrativa');
  $('connected-link').hidden=connected;
- const photo=menu.products.find(p=>safeImage(p.image,location.origin));if(photo){$('hero-image').hidden=false;$('hero-image').src=safeImage(photo.image,location.origin);$('hero-image').alt=photo.name;}
+ const photo=menu.products.find(p=>safeImage(p.image,location.origin));if(photo){$('hero-image').hidden=false;$('hero-image').src=safeImage(photo.image,location.origin);$('hero-image').alt=photo.name;}else{$('hero-image').hidden=true;$('hero-caption').textContent='Fotografía no disponible';}
  $('hero-image').onerror=()=>{$('hero-image').hidden=true;$('hero-caption').textContent='Fotografía no disponible';};
  $('featured').replaceChildren(...menu.products.slice(0,3).map(productCard));
  renderMenu();renderPromotions();
@@ -55,12 +69,13 @@ function render(){
 }
 async function readResponse(response){let data;try{data=await response.json();}catch{throw Error('No pudimos leer la respuesta. Volvé a intentar.');}if(!response.ok)throw Error(data.error||'No pudimos completar la consulta.');return data;}
 async function load(){
- if(state.loading)return;state.loading=true;state.error=false;document.body.classList.add('loading');$('load-error').hidden=true;$('refresh-menu').disabled=true;$('page-status').textContent='Cargando carta…';
+ if(state.loading)return;state.loading=true;state.error=false;document.body.classList.add('loading');$('main').setAttribute('aria-busy','true');$('load-error').hidden=true;$('refresh-menu').disabled=true;$('page-status').textContent='Cargando carta…';
+ if(!state.menu)for(const view of ['home','menu','promos'])$(view+'-view').hidden=true;
  try{
   const url=connected?'/api/kb-menu?'+new URLSearchParams({slug}):'/assets/demo-menu.json';
   const data=await readResponse(await fetch(url,{signal:AbortSignal.timeout(20000),cache:'no-store'}));state.menu=validateMenu(data);if(state.category&&!data.categories.some(c=>c.id===state.category))state.category='';render();showView(state.view,{updateHash:false,focus:false});
  }catch(error){state.menu=null;state.error=true;$('load-error-message').textContent=error.message;$('load-error').hidden=false;$('page-status').textContent='Carta no disponible. No se sustituyeron los datos por ejemplos.';for(const view of ['home','menu','promos'])$(view+'-view').hidden=true;$('featured').replaceChildren();$('products').replaceChildren();}
- finally{state.loading=false;document.body.classList.remove('loading');$('refresh-menu').disabled=false;}
+ finally{state.loading=false;document.body.classList.remove('loading');$('main').setAttribute('aria-busy','false');$('refresh-menu').disabled=false;}
 }
 function showView(view,{updateHash=true,focus=true}={}){
  if(view==='chat'){openChat();return;}
@@ -78,13 +93,13 @@ function openDetail(id){
  $('product-detail').showModal();document.body.classList.add('dialog-open');$('close-detail').focus();
 }
 function closeDetail({restore=true}={}){$('product-detail').close();state.detail=null;if(restore&&detailFromChat)$('chat').showModal();else document.body.classList.remove('dialog-open');detailFromChat=false;dialogReturn?.focus?.({preventScroll:true});}
-function openChat(){
+function openChat({preserveReturn=false}={}){
  if($('chat').open)return;
- dialogReturn=document.activeElement;
+ if(!preserveReturn)chatReturn=document.activeElement;
  if(!$('messages').children.length){const welcome=create('div',undefined,'chat-welcome');welcome.append(create('div','✦','spark'),create('h3','¿Qué te provoca hoy?'),create('p','Una cerveza suave, algo para compartir o una opción para tu presupuesto. Contame y exploremos esta carta.'));$('messages').append(welcome);}
  $('chat').showModal();document.body.classList.add('dialog-open');viewport();$('close-chat').focus();
 }
-function closeChat(){$('chat').close();document.body.classList.remove('dialog-open');dialogReturn?.focus?.({preventScroll:true});}
+function closeChat(){$('chat').close();document.body.classList.remove('dialog-open');chatReturn?.focus?.({preventScroll:true});}
 function bubble(text,role){const p=create('div',text,'bubble '+role);$('messages').append(p);scrollMessages();}
 function scrollMessages(){$('messages').scrollTop=$('messages').scrollHeight;}
 async function ask(raw,{retry=false}={}){
@@ -95,7 +110,7 @@ async function ask(raw,{retry=false}={}){
  if(!retry)bubble(message,'user');$('question').value='';
  try{
   const payload=connected?{message,history:state.history.slice(-6),slug,requestId:crypto.randomUUID()}:{message,history:state.history.slice(-10)};
-  const result=await readResponse(await fetch(connected?'/api/kb-menu':'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(55000)}));
+  const result=await readResponse(await fetch(connected?'/api/kb-menu':chatOrigin+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(55000)}));
   if(typeof result.answer!=='string'||!result.answer.trim())throw Error('El asistente no devolvió una respuesta.');
   bubble(result.answer,'assistant');
   const provenance=result.provider==='gemini'?'Respuesta con Gemini':result.provider==='fixture'?'Respuesta simulada · fixture local':result.responseSource==='respaldo'?'Respuesta de respaldo del servidor':result.provider==='ollama'?'Respuesta con IA local':'Respuesta basada en la carta';
@@ -110,7 +125,7 @@ for(const b of document.querySelectorAll('[data-view]'))b.onclick=()=>showView(b
 $('menu-search').oninput=e=>{state.search=e.target.value;renderMenu();};$('clear-filters').onclick=()=>{state.category='';state.search='';$('menu-search').value='';renderMenu();};
 $('refresh-menu').onclick=load;$('retry-load').onclick=load;
 $('close-detail').onclick=closeDetail;$('product-detail').addEventListener('cancel',e=>{e.preventDefault();closeDetail();});$('close-chat').onclick=closeChat;$('chat').addEventListener('cancel',e=>{e.preventDefault();closeChat();});
-$('ask-product').onclick=()=>{const product=state.detail;if(!product)return;const question=productQuestion(product);closeDetail({restore:false});openChat();ask(question);};
+$('ask-product').onclick=()=>{const product=state.detail;if(!product)return;const question=productQuestion(product),fromChat=detailFromChat;closeDetail({restore:false});openChat({preserveReturn:fromChat});ask(question);};
 $('chat-form').onsubmit=e=>{e.preventDefault();ask($('question').value);};$('retry-chat').onclick=()=>ask(state.lastQuestion,{retry:true});for(const b of suggestions)b.onclick=()=>ask(b.textContent);
 window.visualViewport?.addEventListener('resize',viewport);window.visualViewport?.addEventListener('scroll',viewport);window.addEventListener('resize',viewport);$('question').addEventListener('focus',viewport);$('question').addEventListener('blur',viewport);
 function hashView(){const hash=location.hash;showView(hash==='#carta'?'menu':hash==='#promos'?'promos':'home',{updateHash:false,focus:false});}window.addEventListener('hashchange',hashView);hashView();viewport();load();
