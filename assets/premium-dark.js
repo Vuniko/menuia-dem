@@ -1,7 +1,8 @@
 import {filterProducts,mentionedProducts,money,safeImage,productQuestion,validateMenu,localAssistantOrigin} from './menu-model.mjs';
+import {chatPayload,requestChat,ChatFailure} from './chat-transport.mjs';
 const $=id=>document.getElementById(id),connected=document.body.dataset.source==='knowledge';
 const slug=new URLSearchParams(location.search).get('negocio')||'cerveceria-demo';
-const state={menu:null,category:'',search:'',view:'home',history:[],busy:false,loading:false,lastQuestion:'',detail:null,error:false};
+const state={menu:null,category:'',search:'',view:'home',history:[],busy:false,loading:false,lastQuestion:'',detail:null,error:false,failed:false,retryAt:0};
 const suggestions=[...$('suggestions').querySelectorAll('button')];
 let dialogReturn=null,chatReturn=null,detailFromChat=false;
 let chatOrigin=location.origin;
@@ -102,23 +103,29 @@ function openChat({preserveReturn=false}={}){
 function closeChat(){$('chat').close();document.body.classList.remove('dialog-open');chatReturn?.focus?.({preventScroll:true});}
 function bubble(text,role){const p=create('div',text,'bubble '+role);$('messages').append(p);scrollMessages();}
 function scrollMessages(){$('messages').scrollTop=$('messages').scrollHeight;}
+let cooldownTimer;
+function chatControls(){const blocked=state.busy||Date.now()<state.retryAt||navigator.onLine===false;$('send').disabled=blocked;$('retry-chat').disabled=blocked;for(const b of suggestions)b.disabled=blocked;}
 async function ask(raw,{retry=false}={}){
  const message=raw.trim();if(!message||state.busy)return;
+ if(Date.now()<state.retryAt){$('chat-status').textContent='Esperá un momento antes de continuar. Tu pregunta sigue aquí.';return;}
  if(!state.menu){bubble('La carta todavía no está disponible. Volvé a cargarla antes de consultar.','error');return;}
  if(message.length>500){$('chat-status').textContent='La pregunta admite hasta 500 caracteres.';return;}
- state.busy=true;state.lastQuestion=message;$('send').disabled=true;$('retry-chat').hidden=true;for(const b of suggestions)b.disabled=true;$('chat-form').setAttribute('aria-busy','true');$('chat-status').dataset.busy='true';$('chat-status').textContent='MenuIA está respondiendo…';
- if(!retry)bubble(message,'user');$('question').value='';
+ const repeated=state.failed&&state.lastQuestion===message;
+ state.busy=true;state.lastQuestion=message;state.failed=false;$('retry-chat').hidden=true;chatControls();$('chat-form').setAttribute('aria-busy','true');$('chat-status').dataset.busy='true';$('chat-status').textContent='MenuIA está respondiendo…';
+ if(!retry&&!repeated)bubble(message,'user');$('question').value='';
  try{
-  const payload=connected?{message,history:state.history.slice(-6),slug,requestId:crypto.randomUUID()}:{message,history:state.history.slice(-10)};
-  const result=await readResponse(await fetch(connected?'/api/kb-menu':chatOrigin+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(55000)}));
-  if(typeof result.answer!=='string'||!result.answer.trim())throw Error('El asistente no devolvió una respuesta.');
+  if(navigator.onLine===false)throw new ChatFailure('Parece que no tenés conexión a Internet. Tu pregunta sigue aquí; podés continuar cuando vuelva.');
+  const payload=chatPayload({message,history:state.history,connected,slug,requestId:connected?crypto.randomUUID():undefined});
+  const result=await requestChat(connected?'/api/kb-menu':chatOrigin+'/api/chat',payload);
   bubble(result.answer,'assistant');
   const provenance=result.provider==='gemini'?'Respuesta con Gemini':result.provider==='fixture'?'Respuesta simulada · fixture local':result.responseSource==='respaldo'?'Respuesta de respaldo del servidor':result.provider==='ollama'?'Respuesta con IA local':'Respuesta basada en la carta';
   $('messages').append(create('span',provenance+' · '+(connected?'datos de prueba':'carta ilustrativa'),'response-source'));
   const mentioned=mentionedProducts(result.answer,state.menu.products);if(mentioned.length){$('messages').append(create('p','Productos mencionados en esta respuesta','small-label'));const cards=create('div',undefined,'response-products');cards.append(...mentioned.map(productCard));$('messages').append(cards);}
   state.history.push({role:'user',content:message},{role:'assistant',content:result.answer});state.history=state.history.slice(-10);$('chat-status').textContent=provenance+'.';scrollMessages();
- }catch(error){bubble(error.name==='TimeoutError'?'La consulta tardó demasiado. Podés volver a intentar.':error.message,'error');$('retry-chat').hidden=false;$('chat-status').textContent='No se completó la consulta. No mostramos una respuesta simulada como si fuera Gemini.';}
- finally{state.busy=false;$('send').disabled=false;for(const b of suggestions)b.disabled=false;$('chat-form').setAttribute('aria-busy','false');$('chat-status').dataset.busy='false';}
+ }catch(error){state.failed=true;if(!$('question').value)$('question').value=message;bubble(error.message,'error');$('retry-chat').hidden=false;$('chat-status').textContent=error.message;
+  if(error.retryAfter){state.retryAt=Date.now()+error.retryAfter*1000;clearTimeout(cooldownTimer);cooldownTimer=setTimeout(()=>{chatControls();if(state.failed&&navigator.onLine!==false)$('chat-status').textContent='Ya podés reintentar tu pregunta.';},error.retryAfter*1000);}
+ }
+ finally{state.busy=false;chatControls();$('chat-form').setAttribute('aria-busy','false');$('chat-status').dataset.busy='false';}
 }
 function viewport(){const v=window.visualViewport;document.documentElement.style.setProperty('--visual-height',(v?.height||innerHeight)+'px');document.documentElement.style.setProperty('--visual-top',(v?.offsetTop||0)+'px');document.body.classList.toggle('keyboard-open',document.activeElement===$('question')&&innerHeight-(v?.height||innerHeight)>120);}
 for(const b of document.querySelectorAll('[data-view]'))b.onclick=()=>showView(b.dataset.view);
@@ -128,4 +135,6 @@ $('close-detail').onclick=closeDetail;$('product-detail').addEventListener('canc
 $('ask-product').onclick=()=>{const product=state.detail;if(!product)return;const question=productQuestion(product),fromChat=detailFromChat;closeDetail({restore:false});openChat({preserveReturn:fromChat});ask(question);};
 $('chat-form').onsubmit=e=>{e.preventDefault();ask($('question').value);};$('retry-chat').onclick=()=>ask(state.lastQuestion,{retry:true});for(const b of suggestions)b.onclick=()=>ask(b.textContent);
 window.visualViewport?.addEventListener('resize',viewport);window.visualViewport?.addEventListener('scroll',viewport);window.addEventListener('resize',viewport);$('question').addEventListener('focus',viewport);$('question').addEventListener('blur',viewport);
+window.addEventListener('offline',()=>{chatControls();if(!state.busy)$('chat-status').textContent='Sin Internet. Conservamos la conversación; podés continuar cuando vuelva.';});
+window.addEventListener('online',()=>{chatControls();if(state.failed&&!state.busy&&Date.now()>=state.retryAt)$('chat-status').textContent='La conexión volvió. Podés reintentar tu pregunta.';});
 function hashView(){const hash=location.hash;showView(hash==='#carta'?'menu':hash==='#promos'?'promos':'home',{updateHash:false,focus:false});}window.addEventListener('hashchange',hashView);hashView();viewport();load();
