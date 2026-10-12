@@ -1,6 +1,7 @@
 import http from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
+import {menuAnswer} from './menu-answers.mjs';
 const PORT=Number(process.env.PORT||8787);
 const OLLAMA_URL=process.env.OLLAMA_URL||'http://127.0.0.1:11434';
 const MODEL=process.env.OLLAMA_MODEL||'qwen3:4b';
@@ -148,6 +149,7 @@ export async function handleRequest(req,res,{forceGemini=false}={}){
  if(active>=2){respond(res,503,{error:'Asistente ocupado. Probá en unos segundos.'},allowedOrigin);return}
  let raw='';try{let body;if(req.body!==undefined){raw=typeof req.body==='string'?req.body:JSON.stringify(req.body);if(raw.length>4000)throw Error('Solicitud demasiado grande');body=JSON.parse(raw)}else{for await(const chunk of req){raw+=chunk;if(raw.length>4000)throw new Error('Solicitud demasiado grande')}body=JSON.parse(raw)}if(typeof body.message!=='string'||!body.message.trim()||body.message.length>500){respond(res,400,{error:'Pregunta inválida (máximo 500 caracteres).'},allowedOrigin);return}
  const history=Array.isArray(body.history)?body.history.slice(-10).filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string'&&m.content.length<=700).map(m=>({role:m.role,content:m.content})):[];
+ const catalog=forceGemini?null:menuAnswer(body.message,products);if(catalog){respond(res,200,{answer:catalog,provider:'reglas',model:null},allowedOrigin);return}
  const detail=forceGemini?null:productAnswer(body.message,history);if(detail){respond(res,200,{answer:detail,provider:'reglas',model:null},allowedOrigin);return}
  const followup=forceGemini?null:beerFollowup(body.message,history);if(followup){respond(res,200,{answer:followup,provider:'reglas',model:null},allowedOrigin);return}
  active++;

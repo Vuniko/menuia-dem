@@ -6,7 +6,7 @@ export function filterProducts(products,{category='',search=''}={}){
 }
 export function mentionedProducts(answer,products){
  const text=normalize(answer);
- return products.filter(p=>p.stock!=='agotado'&&new RegExp('(^|[^a-z0-9])'+normalize(p.name).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=$|[^a-z0-9])').test(text)).slice(0,3);
+ return products.filter(p=>p.stock!=='agotado'&&new RegExp('(^|[^a-z0-9])'+normalize(p.name).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=$|[^a-z0-9])').test(text));
 }
 export function safeImage(value,origin){
  if(typeof value!=='string'||!value)return null;

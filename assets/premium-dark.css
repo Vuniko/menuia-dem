@@ -8,3 +8,4 @@
 h1,h2,h3,p{overflow-wrap:anywhere}.product-meta h3{min-width:0}
 .local-connection{font-size:11px;color:var(--muted);padding:7px 0}.local-connection summary{cursor:pointer;min-height:32px}.local-connection label{display:block;margin:8px 0}.local-connection input{display:block;width:100%;margin-bottom:10px}.local-connection p{font-size:11px}.local-connection .secondary{font-size:11px;min-height:44px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+.response-products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}.response-products>.product-card{width:auto}
