@@ -61,7 +61,7 @@ export function createAdminHandler({env=process.env,fetcher=fetch}={}){
  const recoveryCookie=hosted?'__Host-menuia_recovery':'menuia_recovery';
  const recoveryURL='https://menuia-dem-git-feature-menuia-knowledge-base-v1-vuniko.vercel.app/admin/recovery.html';
  const publicKey=()=>{const key=env.SUPABASE_PUBLISHABLE_KEY||'';if(key.startsWith('sb_publishable_'))return true;try{return JSON.parse(Buffer.from(key.split('.')[1],'base64url')).role==='anon'}catch{return false}};
- const configured=()=>env.SUPABASE_URL&&publicKey();
+ const configured=()=>{try{base();return publicKey()}catch{return false}};
  const base=()=>{try{const u=new URL(env.SUPABASE_URL);if(u.protocol!=='https:'||u.username||u.password||u.pathname!=='/'||u.hostname!=='secknmhqqzjlirwwnsnf.supabase.co')throw Error();return u.origin}catch{fail(503,'El proyecto de pruebas no está configurado.')}};
  async function supabase(path,{token,method='GET',body,representation=false}={}){
   const headers={apikey:env.SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json'};

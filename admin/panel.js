@@ -24,7 +24,14 @@ async function api(action,{method='GET',body,params={}}={}){
 }
 function notice(message,error=false){$('notice').textContent=message;$('notice').classList.toggle('error',error);}
 function setBusy(value){state.busy=value;$('restaurant-select').disabled=value;$('new-business').disabled=value;$('add-record').disabled=value;for(const b of $('sections').querySelectorAll('button'))b.disabled=value;}
-function showLogin(){state={restaurants:[],selected:'',bundle:null,section:'restaurants',busy:false};$('workspace').hidden=true;$('login-view').hidden=false;$('logout').hidden=true;}
+function showLogin(){
+ state={restaurants:[],selected:'',bundle:null,section:'restaurants',busy:false};closeEditor(true);
+ for(const id of ['records','metrics','sections','restaurant-select','form-fields','assistant-messages'])$(id).replaceChildren();
+ for(const id of ['workspace-title','role-note','assistant-title','assistant-state','edit-error'])$(id).textContent='';
+ $('assistant-question').value='';$('assistant-dialog').close();document.body.style.overflow='';
+ if(typeof resetAssistant==='function')resetAssistant();
+ $('workspace').hidden=true;$('login-view').hidden=false;$('logout').hidden=true;
+}
 function canEdit(){return ['owner','editor'].includes(state.bundle?.role);}
 async function loadRestaurants(preferred){
  const result=await api('restaurants');state.restaurants=result.restaurants;
@@ -35,7 +42,7 @@ async function loadRestaurants(preferred){
  if(state.selected)await loadBundle();else{$('workspace-title').textContent='Mis negocios';$('role-note').textContent='Todavía no tenés negocios asignados.';}
 }
 async function loadBundle(){
- const selected=state.selected;notice('Cargando datos del negocio…');const bundle=await api('bundle',{params:{restaurantId:selected}});if(selected!==state.selected)return;
+ const selected=state.selected;state.bundle=null;$('business-content').hidden=true;notice('Cargando datos del negocio…');const bundle=await api('bundle',{params:{restaurantId:selected}});if(selected!==state.selected)return;
  state.bundle=bundle;$('business-content').hidden=false;$('workspace-title').textContent=bundle.restaurants[0]?.name||'Mi negocio';$('role-note').textContent=bundle.role==='viewer'?'Acceso de solo lectura':bundle.role==='owner'?'Propietario · podés administrar este negocio':'Editor · podés actualizar la información';
  render();notice('');
 }
@@ -106,6 +113,14 @@ function readValues(){const result={};for(const f of definitions[editing.resourc
  result[f.name]=value;
  }
  if(editing.resource==='restaurants'){result.social_links={};for(const name of ['instagram','facebook','tiktok','website']){if(result['social_'+name])result.social_links[name]=result['social_'+name];delete result['social_'+name];}}
+ // Omit unchanged verified fields on edits. Sending them with unchecked
+ // confirmation boxes would invalidate checks when only the price/name changed.
+ if(editing.row){
+  const groups={products:[['ingredients','verifyIngredients'],['allergens','verifyAllergens'],['available','verifyAvailability','validHours']],restaurants:[['payment_methods','verifyPayments']],knowledge_documents:[['content','verifyDocument']]};
+  for(const [key,flag,...extra] of groups[editing.resource]||[]){
+   if(!result[flag]&&JSON.stringify(result[key])===JSON.stringify(editing.row[key]))for(const name of [key,flag,...extra])delete result[name];
+  }
+ }
  return result;
 }
 $('login-form').addEventListener('submit',async e=>{e.preventDefault();const button=e.submitter;button.disabled=true;button.textContent='Ingresando…';notice('');const form=new FormData(e.currentTarget);

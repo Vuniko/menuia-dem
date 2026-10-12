@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "node --test --test-isolation=none admin-ui.test.mjs admin.test.mjs knowledge.test.mjs public-menu.test.mjs training.test.mjs preview.test.mjs",
     "start": "node index.js"
   },
   "engines": {
