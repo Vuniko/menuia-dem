@@ -25,6 +25,10 @@ test('all four alcohol-free drinks and all four dishes are enumerated from the s
 });
 test('a beer-only budget lists every affordable beer, without food substitutions',()=>{
  const cards=mentionedProducts(menuAnswer('Qué cervezas puedo comprar por S/20',products),sample.products);assert.equal(cards.length,4);assert.ok(cards.every(p=>p.categoryId==='beer'&&p.price<=20));
+ const low=menuAnswer('Qué cerveza puedo comprar por S/10',products);assert.match(low,/Golden Ale/);assert.doesNotMatch(low,/Limonada/);
+});
+test('promotion questions do not become beer lists or invented offers',()=>{
+ for(const question of ['Tienen promociones','Qué ofertas de cerveza tienen','Hay happy hour','Tienen 2x1'])assert.match(menuAnswer(question,products),/No hay promociones verificadas/);
 });
 test('budget calculations never suggest an over-budget option and handle cents',()=>{
  for(const amount of [10,17,20,26,30,40,45,50,100,40.5]){const options=budgetOptions(products,amount);for(const option of options){assert.ok(option.total<=Math.round(amount*100));assert.equal(option.total,option.items.reduce((n,p)=>n+p.cost,0));}}

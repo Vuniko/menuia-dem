@@ -14,6 +14,7 @@ export function budgetOptions(products,amount,{category='',alcohol=''}={}){
 export function menuAnswer(question,products){
  const q=normal(question).replace(/^[¿¡\s]+|[?!¡¿\s]+$/g,'').trim(),line=([name,cost,,description])=>'• '+name+' — '+price(cost)+(description?'. '+description+'.':'');
  if(/alerg|celiac|gluten|lactosa|vegetar|vegano|sin (?:queso|leche|azucar|carne|cebolla)/.test(q))return null;
+ if(/promoc|ofertas?|descuentos?|happy hour|2x1/.test(q))return 'No hay promociones verificadas en esta carta de ejemplo. Los precios de los productos son los que aparecen en la carta; consultá con el personal antes de pedir.';
  const hasBeer=/cervez|birras?/.test(q),hasFood=/comidas?|platos?|comer/.test(q),hasDrinks=/sin alcohol|bebidas no alcoholicas|refrescos/.test(q);
  const listIntent=/todas?|todos|opciones|lista|carta|menu|mostrar|mostra|muestr|hay|tienen|tienes|tenes|venden|ofrece|manejan|disponibles|precios/.test(q)||/^(?:que |cuales? )?(?:cervezas?|birras?|comidas|platos|bebidas|refrescos)[?¿!\s]*$/.test(q);
  const advice=/recomend|prefier|busco|quiero|suave|ligera|intensa|amarga|fuerte/.test(q);
@@ -23,7 +24,7 @@ export function menuAnswer(question,products){
   const amount=Number((budget[1]||budget[2]).replace(',','.'));if(!Number.isFinite(amount)||amount>100000)return null;
   const categoryOnly=!hasFood&&!/pedir|combin|combo|acompan/.test(q);
   const choices=budgetOptions(products,amount,{category:categoryOnly?(hasBeer&&hasDrinks?'bebidas':hasBeer?'cerveza':hasDrinks?'sin alcohol':''):'',alcohol:hasDrinks&&!hasBeer?'sin alcohol':hasBeer&&!hasDrinks?'cerveza':''});
-  if(!choices.length){const cheapest=[...products].sort((a,b)=>a[1]-b[1])[0];return 'No hay una opción dentro de '+price(amount)+' en esta carta de ejemplo. La opción más económica registrada es '+cheapest[0]+' a '+price(cheapest[1])+'.';}
+  if(!choices.length){const eligible=products.filter(p=>!categoryOnly||(!hasBeer&&!hasDrinks)||(hasBeer&&p[2]==='cerveza')||(hasDrinks&&p[2]==='sin alcohol'));const cheapest=[...eligible].sort((a,b)=>a[1]-b[1])[0];return 'No hay una opción dentro de '+price(amount)+' en esta carta de ejemplo. La opción más económica registrada en esa selección es '+cheapest[0]+' a '+price(cheapest[1])+'.';}
   return 'Dentro de '+price(amount)+' podés elegir:\n'+choices.map(c=>'• '+c.items.map(p=>p.name+' ('+price(p.cost/100)+')').join(' + ')+'. Total '+price(c.total/100)+'; te quedan '+price((Math.round(amount*100)-c.total)/100)+'.').join('\n')+'\nPrecios de la carta de ejemplo; confirmá disponibilidad con el personal.';
  }
  if(listIntent&&(!advice||/todas?|todos|opciones|lista|carta|menu/.test(q))){
