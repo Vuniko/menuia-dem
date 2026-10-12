@@ -53,7 +53,7 @@ function renderPromotions(){
   const summary=!connected&&promotionSummary(offer,state.menu.products);if(summary)card.append(create('p','Precio normal '+money(summary.originalTotal)+' · Ahorrás '+money(summary.savings)));
   if(offer.conditions)card.append(create('p',offer.conditions));
   if(offer.validityLabel)card.append(create('p',offer.validityLabel));else if(offer.starts_at&&offer.ends_at){const format=s=>new Intl.DateTimeFormat('es-PE',{dateStyle:'medium',timeStyle:'short',timeZone:'America/Lima'}).format(new Date(s));card.append(create('p',format(offer.starts_at)+' — '+format(offer.ends_at)));}else card.append(create('p','Vigente al consultar esta carta. Las fechas exactas no se incluyen en esta vista.'));
-  $('promotions').append(card);
+  const consult=create('button','Consultar esta promo ✦','primary');consult.type='button';consult.setAttribute('aria-label','Consultar '+offer.title+' a MenuIA');consult.onclick=()=>{openChat();ask('¿Qué incluye la promoción '+offer.title+'?');};card.append(consult);$('promotions').append(card);
  }
 }
 function render(){
