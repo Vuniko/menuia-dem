@@ -1,0 +1,194 @@
+{
+  "demo": true,
+  "source": "illustrative",
+  "business": {
+    "name": "Cervecería MenuIA",
+    "description": "Cervezas artesanales, platos para compartir y buenas conversaciones. Una carta de ejemplo para descubrir MenuIA."
+  },
+  "categories": [
+    {
+      "id": "food",
+      "name": "Comidas"
+    },
+    {
+      "id": "beer",
+      "name": "Cervezas"
+    },
+    {
+      "id": "drink",
+      "name": "Sin alcohol"
+    }
+  ],
+  "products": [
+    {
+      "id": "demo-0",
+      "categoryId": "food",
+      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=650&q=80",
+      "name": "Hamburguesa clásica",
+      "description": "Carne, cheddar y vegetales",
+      "price": 28,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Carne de res, queso cheddar, pan, lechuga y tomate."
+      ],
+      "allergens": [],
+      "warning": "Contiene gluten y lácteos."
+    },
+    {
+      "id": "demo-1",
+      "categoryId": "food",
+      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=650&q=80",
+      "name": "Papas de la casa",
+      "description": "Crocantes con salsa especial",
+      "price": 16,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Papas, aceite vegetal y salsa especial."
+      ],
+      "allergens": [],
+      "warning": "Consultar ingredientes de la salsa."
+    },
+    {
+      "id": "demo-2",
+      "categoryId": "food",
+      "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=650&q=80",
+      "name": "Pizza margarita",
+      "description": "Tomate, mozzarella y albahaca",
+      "price": 32,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Masa de trigo, tomate, mozzarella y albahaca."
+      ],
+      "allergens": [],
+      "warning": "Contiene gluten y lácteos."
+    },
+    {
+      "id": "demo-3",
+      "categoryId": "food",
+      "image": "https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=650&q=80",
+      "name": "Alitas BBQ",
+      "description": "Alitas glaseadas con salsa BBQ",
+      "price": 26,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Alitas de pollo y salsa BBQ."
+      ],
+      "allergens": [],
+      "warning": "Consultar ingredientes de la salsa."
+    },
+    {
+      "id": "demo-4",
+      "categoryId": "beer",
+      "image": "https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=650&q=80",
+      "name": "IPA artesanal",
+      "description": "Amargor intenso y aroma cítrico",
+      "price": 19,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Cerveza de estilo India Pale Ale, de perfil lupulado."
+      ],
+      "allergens": [],
+      "warning": "Contiene gluten. Bebida alcohólica."
+    },
+    {
+      "id": "demo-5",
+      "categoryId": "beer",
+      "image": "https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=650&q=80",
+      "name": "Golden Ale",
+      "description": "Rubia ligera y refrescante",
+      "price": 17,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Cerveza rubia de perfil ligero."
+      ],
+      "allergens": [],
+      "warning": "Contiene gluten. Bebida alcohólica."
+    },
+    {
+      "id": "demo-6",
+      "categoryId": "beer",
+      "image": "/assets/stout.svg",
+      "name": "Stout",
+      "description": "Negra, notas de café y cacao",
+      "price": 20,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Cerveza oscura de perfil tostado."
+      ],
+      "allergens": [],
+      "warning": "Contiene gluten. Bebida alcohólica."
+    },
+    {
+      "id": "demo-7",
+      "categoryId": "beer",
+      "image": "/assets/red-ale.svg",
+      "name": "Red Ale",
+      "description": "Ámbar con notas de caramelo",
+      "price": 18,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Cerveza ámbar con notas maltosas."
+      ],
+      "allergens": [],
+      "warning": "Contiene gluten. Bebida alcohólica."
+    },
+    {
+      "id": "demo-8",
+      "categoryId": "drink",
+      "image": "/assets/limonada.svg",
+      "name": "Limonada natural",
+      "description": "Limón fresco y hielo",
+      "price": 10,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Agua, limón y hielo."
+      ],
+      "allergens": [],
+      "warning": "Consultar preparación en el local."
+    },
+    {
+      "id": "demo-9",
+      "categoryId": "drink",
+      "image": "https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=650&q=80",
+      "name": "Maracuyá frozen",
+      "description": "Pulpa de maracuyá y hielo",
+      "price": 13,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Pulpa de maracuyá, hielo y agua."
+      ],
+      "allergens": [],
+      "warning": "Consultar preparación en el local."
+    },
+    {
+      "id": "demo-10",
+      "categoryId": "drink",
+      "image": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=650&q=80",
+      "name": "Chicha morada",
+      "description": "Maíz morado y especias",
+      "price": 10,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Bebida de maíz morado y especias."
+      ],
+      "allergens": [],
+      "warning": "Consultar preparación en el local."
+    },
+    {
+      "id": "demo-11",
+      "categoryId": "drink",
+      "image": "https://images.unsplash.com/photo-1437418747212-8d9709afab22?auto=format&fit=crop&w=650&q=80",
+      "name": "Ginger ale",
+      "description": "Bebida gasificada con jengibre",
+      "price": 11,
+      "stock": "por confirmar",
+      "ingredients": [
+        "Bebida gasificada sabor jengibre."
+      ],
+      "allergens": [],
+      "warning": "Consultar etiqueta del producto."
+    }
+  ],
+  "promotions": [],
+  "hours": []
+}

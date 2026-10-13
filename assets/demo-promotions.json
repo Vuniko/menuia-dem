@@ -1,0 +1,24 @@
+[
+  {
+    "id": "demo-combo-cervecero",
+    "title": "Combo cervecero",
+    "description": "1 Hamburguesa clásica + 1 Golden Ale.",
+    "type": "combo",
+    "price": 39,
+    "active": true,
+    "items": [{"name": "Hamburguesa clásica", "quantity": 1}, {"name": "Golden Ale", "quantity": 1}],
+    "conditions": "Precio por combo. Golden Ale solo para mayores de 18 años. No acumulable. Confirmá disponibilidad.",
+    "validityLabel": "Promoción de ejemplo disponible durante esta demo; no válida en negocios reales."
+  },
+  {
+    "id": "demo-combo-refrescante",
+    "title": "Combo refrescante",
+    "description": "1 Papas de la casa + 1 Maracuyá frozen. Sin alcohol.",
+    "type": "combo",
+    "price": 25,
+    "active": true,
+    "items": [{"name": "Papas de la casa", "quantity": 1}, {"name": "Maracuyá frozen", "quantity": 1}],
+    "conditions": "Precio por combo. No acumulable. Confirmá ingredientes y disponibilidad con el personal.",
+    "validityLabel": "Promoción de ejemplo disponible durante esta demo; no válida en negocios reales."
+  }
+]
