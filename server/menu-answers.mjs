@@ -21,6 +21,16 @@ export function menuAnswer(question,products,{promotions=[],history=[]}={}){
  const offers=promotions.map(p=>promotionSummary(p,products)).filter(Boolean).filter(p=>(!minor||!p.alcoholic)&&(!hasDrinks||hasBeer||!p.alcoholic)&&(!hasBeer||hasDrinks||minor||p.alcoholic));
  const budget=q.match(/s\s*\/\s*(\d+(?:[.,]\d{1,2})?)/)||q.match(/(?:tengo|presupuesto(?: de)?|hasta|menos de|con|por)\s+(\d+(?:[.,]\d{1,2})?)\s*(?:soles)?/);
  const amount=budget?Number(budget[1].replace(',','.')):null;
+ const named=promotions.filter(p=>q.includes(normal(p.title)));
+ const previousQuestion=normal(history.filter(m=>m.role==='user').at(-1)?.content);
+ const followup=!named.length&&/^(?:y )?(?:cuanto (?:cuesta|sale|vale)|que incluye|que trae|cuanto ahorro|tiene alcohol|esa promo|ese combo)/.test(q);
+ const selected=named.length?named:followup?promotions.filter(p=>previousQuestion.includes(normal(p.title))):[];
+ if(selected.length===1){
+  const offer=offers.find(p=>p.id===selected[0].id);
+  if(!offer)return 'Esa promoción no cumple tu selección o restricción. Podemos buscar una opción sin alcohol o productos de la carta.';
+  if(amount!==null&&offer.price>amount)return offer.title+' cuesta '+price(offer.price)+', supera tu presupuesto de '+price(amount)+'. Podemos buscar una opción dentro de ese monto.';
+  return promotionLine(offer)+' '+offer.validityLabel+'\n'+(offer.alcoholic?'Incluye cerveza con alcohol, solo para mayores de 18 años.':'Es un combo sin alcohol.');
+ }
  if(/promo|ofertas?|descuentos?|happy hour|2x1|(?:que|hay|tienen|mostrar|muestr).*combos?/.test(q)){
   const fits=offers.filter(p=>amount===null||p.price<=amount);
   if(!fits.length)return promotions.length?'No hay promociones de ejemplo que cumplan esa selección o presupuesto. Podemos buscar productos de la carta que sí encajen.':'No hay promociones verificadas en esta carta de ejemplo. Los precios de los productos son los que aparecen en la carta; consultá con el personal antes de pedir.';

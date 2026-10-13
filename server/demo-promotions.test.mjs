@@ -22,6 +22,15 @@ test('budget offers fit the amount and alcohol-free selection never receives bee
  assert.doesNotMatch(menuAnswer('Promos sin alcohol',products,{promotions:demoPromotions}),/Golden Ale/);
  assert.doesNotMatch(menuAnswer('Qué cerveza puedo comprar por S/20',products,{promotions:demoPromotions}),/Hamburguesa/);
 });
+test('selected promotion and immediate follow-up stay on the chosen combo without bypassing restrictions',()=>{
+ const opts={promotions:demoPromotions};
+ for(const question of ['¿Qué incluye la promoción Combo cervecero?','Cuánto cuesta Combo cervecero','Cuánto ahorro con Combo cervecero']){const answer=menuAnswer(question,products,opts);assert.match(answer,/Combo cervecero/);assert.match(answer,/39\.00/);assert.doesNotMatch(answer,/Combo refrescante/);}
+ const answer=menuAnswer('¿Y cuánto cuesta?',products,{...opts,history:[{role:'user',content:'Qué incluye Combo refrescante'}]});assert.match(answer,/25\.00/);assert.doesNotMatch(answer,/Combo cervecero/);
+ assert.match(menuAnswer('Combo cervecero por S/30',products,opts),/supera tu presupuesto/);
+ assert.doesNotMatch(menuAnswer('Combo cervecero sin alcohol',products,opts),/Golden Ale/);
+ assert.doesNotMatch(menuAnswer('Combo cervecero',products,{...opts,history:[{role:'user',content:'Soy menor de edad'}]}),/Golden Ale/);
+ assert.equal(menuAnswer('Qué incluye',products,opts),null);
+});
 test('minor context excludes alcoholic offers; inactive, invalid and unknown-item promotions are discarded',()=>{
  const answer=menuAnswer('Tienen promos',products,{promotions:demoPromotions,history:[{role:'user',content:'Soy menor de edad'}]});assert.match(answer,/Combo refrescante/);assert.doesNotMatch(answer,/Golden Ale/);
  const p=demoPromotions[0];for(const invalid of [{...p,active:false},{...p,price:-1},{...p,price:100},{...p,items:[{name:'Foreign',quantity:1}]},{...p,items:[{name:'Golden Ale',quantity:0}]}])assert.equal(promotionSummary(invalid,products),null);
