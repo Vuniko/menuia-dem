@@ -35,6 +35,19 @@ test('minor context excludes alcoholic offers; inactive, invalid and unknown-ite
  const answer=menuAnswer('Tienen promos',products,{promotions:demoPromotions,history:[{role:'user',content:'Soy menor de edad'}]});assert.match(answer,/Combo refrescante/);assert.doesNotMatch(answer,/Golden Ale/);
  const p=demoPromotions[0];for(const invalid of [{...p,active:false},{...p,price:-1},{...p,price:100},{...p,items:[{name:'Foreign',quantity:1}]},{...p,items:[{name:'Golden Ale',quantity:0}]}])assert.equal(promotionSummary(invalid,products),null);
 });
+test('consecutive promotion turns stay concise, switch offers and reset on unrelated topics',()=>{
+ const history=[],opts={promotions:demoPromotions,history};
+ const turn=q=>{const answer=menuAnswer(q,products,opts);history.push({role:'user',content:q},{role:'assistant',content:answer||'Otro tema'});return answer;};
+ assert.match(turn('Qué incluye Combo cervecero'),/Golden Ale/);
+ assert.match(turn('Y cuánto ahorro'),/6\.00/);
+ assert.doesNotMatch(turn('Y cuánto cuesta'),/Confirmá disponibilidad/);
+ assert.match(turn('Y qué incluye'),/Golden Ale/);
+ assert.match(turn('Y otra sin alcohol'),/Combo refrescante/);
+ assert.match(turn('Y cuánto cuesta'),/25\.00/);
+ assert.match(turn('Tiene alcohol'),/no, es un combo sin alcohol/);
+ turn('Qué cervezas tienen');assert.equal(turn('Y cuánto ahorro'),null);
+ assert.equal(menuAnswer('Y cuánto cuesta',products,{promotions:demoPromotions,history:[{role:'user',content:'Compará Combo cervecero y Combo refrescante'}]}),null);
+});
 test('real endpoint and Gemini prompt consume the same canonical offer data',async()=>{
  process.env.GEMINI_API_KEY='synthetic-test-credential';process.env.VERCEL_ENV='preview';process.env.VERCEL_URL='menuia-test.vercel.app';
  const {default:handler}=await import('../api/chat.mjs');const {default:check}=await import('../api/gemini-check.mjs');
