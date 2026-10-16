@@ -10,6 +10,7 @@ on:
     branches:
       - feature/menuia-commercial-skills-v1
       - feature/menuia-commercial-skills-v2-validate
+      - fix/menuia-sales-compare-v2-1
   workflow_dispatch:
 
 permissions:
