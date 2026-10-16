@@ -61,3 +61,7 @@ Comando de validación: `node --test --test-isolation=none server/commerce-v3.te
 Búsqueda `  AUDIFONOS   INALAMBRICOS  ` devolvió un producto; texto inexistente mostró cero productos y acción para restablecer. Filtro Tecnología / capacidad 128 GB / máximo S/800 devolvió cero productos, respetando el precio de esa variante (S/899), en lugar del precio base de 64 GB. Fallo HTTP 503 del catálogo en un fixture local explícito mostró error recuperable sin productos de respaldo. Tras cambios de cantidad se conserva el foco en el control recreado del carrito.
 
 La portada pública de Production se registró antes de publicar la rama en `commerce-v3-production-baseline.json`; la verificación final debe compararla sin modificar esa web. El único archivo heredado modificado es index.html; la copia gastronómica conserva su contenido y rutas absolutas. El resto de cambios son archivos nuevos aislados de V3.
+
+## Continuación: catálogo publicado y endpoint separado
+
+La revisión e integración posterior se documenta en [COMMERCIAL-ENDPOINT.md](COMMERCIAL-ENDPOINT.md). Se añade modo `?negocio=slug` y `/api/commercial`, de solo lectura sobre la API pública comercial existente. La demo sin parámetros mantiene su asesor pendiente. No hay tiendas publicadas actualmente, por lo que la comprobación con productos reales de un negocio está pendiente; los fixtures y mocks no se presentan como esa comprobación. Se mantienen las restricciones de Production, variables y cambios remotos.
