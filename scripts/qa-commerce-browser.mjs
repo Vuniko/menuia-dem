@@ -36,8 +36,8 @@ try{
    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...reply,catalog})});
   });
   await page.goto(origin+'/?negocio=menuia-demo#inicio',{waitUntil:'domcontentloaded'});
-  await page.locator('#chat-send').waitFor({state:'visible'});
   await page.locator('[data-open="chat"]').first().click();
+  await page.locator('#chat-send').waitFor({state:'visible'});
   const send=async message=>{
    await page.locator('#question').fill(message);
    await page.locator('#chat-send').click();
