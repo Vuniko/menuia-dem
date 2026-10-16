@@ -31,9 +31,11 @@ export function createSalesPlan(c,message,history=[],productId=null,memory=null)
  if(!c||!c.business||!Array.isArray(c.products)||!Array.isArray(c.variants))throw new TypeError('Catálogo comercial inválido');
  const state=salesContext(c,message,history,productId,memory);
  const intent=classifySalesIntent(message,state);
- const eligible=salesCandidates(c,state,message);
  const skill=SKILLS[intent];
  const requestedIds=(()=>{const names=c.products.filter(p=>normalize(message).includes(normalize(p.name)));if(names.length>=2)return names.map(p=>p.id);return Array.isArray(state.shownProductIds)&&/ambos|esas opciones|esos dos|los dos/.test(normalize(message))?state.shownProductIds.slice(0,2):[];})();
+ // When comparing two named products, colors mentioned in their names are not a global filter.
+ const candidateState=skill==='compareProducts'&&requestedIds.length>=2?{...state,color:undefined,size:undefined}:state;
+ const eligible=salesCandidates(c,candidateState,message);
  const skillResult=executeCommercialSkill(skill,{catalog:c,message,state,candidates:eligible,requestedIds});
  return {intent,skill,state,eligible,skillResult};
 }
