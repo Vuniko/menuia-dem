@@ -4,6 +4,7 @@ on:
     branches:
       - feature/menuia-commercial-skills-v2-validate
       - feature/menuia-orchestrator-skills-runtime
+      - fix/menuia-sales-compare-v2-1
   pull_request:
     branches:
       - feature/menuia-commercial-skills-v1
