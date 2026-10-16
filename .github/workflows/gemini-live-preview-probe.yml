@@ -22,6 +22,7 @@ jobs:
           set -euo pipefail
           echo "Checking GET /api/commercial for published demo contract"
           status=$(curl --silent --show-error --location --max-time 20 --output /tmp/menuia-get --write-out '%{http_code}' "$PREVIEW/api/commercial?slug=menuia-demo")
+          echo "GET response type: $(file --brief --mime-type /tmp/menuia-get)"
           echo "GET HTTP status: $status"
           if [ "$status" != 200 ]; then
             echo "::warning::Preview GET is not publicly accessible (or has an HTTP error). No access protection will be bypassed."
@@ -29,7 +30,11 @@ jobs:
           fi
           python3 - <<'PY'
           import json
-          with open('/tmp/menuia-get', encoding='utf8') as f: d=json.load(f)
+          try:
+              with open('/tmp/menuia-get', encoding='utf8') as f: d=json.load(f)
+          except (ValueError, UnicodeError):
+              print('BLOCKED: Preview URL returned a non-JSON page, likely Vercel access protection or routing. No secrets will be used to bypass it.')
+              raise SystemExit(2)
           assert d['business']['slug']=='menuia-demo'
           print('Catalog verified; Gemini availability advertised:', bool(d['business']['assistant'].get('modelAvailable')))
           PY
