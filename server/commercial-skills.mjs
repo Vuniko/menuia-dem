@@ -41,7 +41,7 @@ export function compareProducts({catalog,candidates,requestedIds=[],message='',s
  const shared=[...new Set(items.flatMap(x=>Object.keys(x.attributes)))];
  const lines=shared.map(k=>k+': '+items.map(x=>String(x.attributes[k]??'No especificado')).join(' / '));
  const q=normalize(message);
- const asksAdvice=/recomiend|cual (me )?(conviene|elegirias|elegir|es mejor)|que (me )?aconsej/.test(q);
+ const asksAdvice=/recomend|recomiend|cual (me )?(conviene|elegirias|elegir|es mejor)|que (me )?aconsej/.test(q);
  const isHeadphones=x=>/audifon|auricular/.test(normalize(x.name));
  const isSpeaker=x=>/parlante|altavoz|bocina/.test(normalize(x.name));
  const headphones=items.find(isHeadphones),speaker=items.find(isSpeaker);
