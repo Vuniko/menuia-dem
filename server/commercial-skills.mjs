@@ -40,7 +40,7 @@ export function compareProducts({catalog,candidates,requestedIds=[]}){
  const amounts=items.map(x=>money(x.priceCents));
  const shared=[...new Set(items.flatMap(x=>Object.keys(x.attributes)))];
  const lines=shared.map(k=>k+': '+items.map(x=>String(x.attributes[k]??'No especificado')).join(' / '));
- const answer='Comparación según el catálogo publicado: '+items[0].name+' ('+amounts[0]+') y '+items[1].name+' ('+amounts[1]+').'+(lines.length?' '+lines.join('. ')+'.':'')+' Las existencias pueden cambiar. ¿Qué característica te importa más?';
+ const answer='Podemos comparar los datos del catálogo publicado: '+items[0].name+' ('+amounts[0]+') y '+items[1].name+' ('+amounts[1]+').'+(lines.length?' '+lines.join('. ')+'.':'')+' Las existencias pueden cambiar. ¿Qué característica te importa más?';
  return {skill:'compareProducts',items,complete:true,answer};
 }
 export function handleObjection({catalog,candidates,state,message}){
