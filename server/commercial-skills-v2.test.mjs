@@ -47,9 +47,11 @@ test('orchestrator safely routes variant and cart help',()=>{
  const variant=createSalesPlan(c,'¿Y en negro?',[],null,{slug:'tienda-a',productId:'p1',size:'m'});
  assert.equal(variant.skill,'resolveVariants');
  const reply=respondWithSalesPlan(c,'¿Y en negro?',variant);
- assert.deepEqual(reply.variantIds,['v1']);
+ assert.deepEqual(variant.skillResult.items.map(x=>x.variantId),['v1']);
+ assert.ok(reply.answer.includes('Camisa'));
  const cart=createSalesPlan(c,'Me lo llevo',[],null,{slug:'tienda-a',productId:'p1',size:'m',color:'negro'});
  const response=respondWithSalesPlan(c,'Me lo llevo',cart);
  assert.deepEqual(response.products,['p1']);
- assert.match(response.answer,/no se realizó ninguna compra/i);
+ assert.equal(cart.skillResult.canAdd,false);
+ assert.match(response.answer,/no confirma pedidos/i);
 });
