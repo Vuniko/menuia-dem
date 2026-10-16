@@ -7,6 +7,7 @@ export function salesContext(c,message,history=[],productId=null,memory=null){
   if(Number.isSafeInteger(memory.budget)&&memory.budget>=0&&memory.budget<=100000000)state.budget=memory.budget;
   if(c.categories.some(x=>x.id===memory.category))state.category=memory.category;
   for(const k of ['color','size','recipient','use','style'])if(typeof memory[k]==='string'&&memory[k].length<=40)state[k]=memory[k];
+  if(typeof memory.interest==='string'&&memory.interest.length<=80)state.interest=memory.interest;
   if(c.products.some(p=>p.id===memory.productId))state.productId=memory.productId;
   if(['budget','interest','product','preference','color','style'].includes(memory.pending))state.pending=memory.pending;
   for(const key of ['shownProductIds','excludedProductIds'])if(Array.isArray(memory[key]))state[key]=[...new Set(memory[key].filter(id=>c.products.some(p=>p.id===id)))].slice(0,4);
@@ -14,6 +15,7 @@ export function salesContext(c,message,history=[],productId=null,memory=null){
  }
  const read=raw=>{
   const q=normalize(raw);
+  if(state.pending==='interest'&&q&&!/^(?:no se|ni idea|no tengo idea)[.! ]*$/.test(q))state.interest=q.slice(0,80);
   if(/empezar de nuevo|otra busqueda|olvida mis preferencias/.test(q))for(const k of Object.keys(state))if(k!=='slug')delete state[k];
   const budget=/(?:s\/\s*|presupuesto\s*(?:de\s*)?|hasta\s+|menos de\s+|por\s+)(\d+(?:[.,]\d{1,2})?)/.exec(q)||/(\d+(?:[.,]\d{1,2})?)\s*soles/.exec(q);
   if(budget)state.budget=Math.round(Number(budget[1].replace(',','.'))*100);
@@ -84,8 +86,9 @@ export function salesReply(c,message,state,{intent,productIds=[]}={}){
  const follow=/este|esta|ese|esa|talla|talle|color|cuanto|precio|cuesta|stock|disponib|\b(?:negro|negra|blanco|blanca|azul|gris|rojo|roja|verde|arena|beige)\b|primero|primer|segundo|tercero|ultimo|me quedo|me llevo|lo quiero/.test(q);
  const reference=c.products.find(p=>p.id===state.productId);
  const browsing=/catalogo|que tienen|que hay|productos|recomiend|muestrame/.test(q);
- if(!state.category&&!state.use&&!all.length&&!browsing&&!compare&&!reference){
+ if(!state.category&&!state.use&&!state.interest&&!all.length&&!browsing&&!compare&&!reference){
   if(state.budget===undefined)return ask((state.pending?'':('¡Hola! Soy el asesor virtual de '+c.business.name+'. '))+(state.recipient?'Para el regalo de tu '+state.recipient+', ¿con qué presupuesto te gustaría empezar?':'¿Con qué presupuesto te gustaría empezar?'),'budget');
+  if(state.pending==='interest'&&/no se|ni idea|no tengo idea/.test(q))return ask('Podemos empezar por '+c.categories.slice(0,3).map(x=>x.name).join(', ')+'. ¿Qué categoría te llama más la atención?','interest');
   return ask('Con hasta '+money(state.budget)+(state.recipient?' para tu '+state.recipient:'')+', podemos afinar la búsqueda. '+(state.recipient?'¿Qué le gusta o qué tipo de producto tienes en mente?':'¿Qué tipo de producto buscas o para qué lo usarías?'),'interest');
  }
  if(follow&&!reference&&state.shownProductIds?.length>1&&!all.length)return ask('¿A cuál te refieres: '+state.shownProductIds.map(id=>c.products.find(p=>p.id===id)?.name).filter(Boolean).join(' o ')+'?','product');

@@ -16,13 +16,13 @@ En el Preview anterior, «Quiero comprar algo, pero no sé qué. Es para mi herm
 
 ## Memoria y límites
 
-Se añaden `pending`, `shownProductIds`, `excludedProductIds`, `excludedColors` y `style` a la memoria no confiable ya existente. Estados pendientes limitados a enumeraciones, IDs filtrados contra el catálogo actual (máximo cuatro) y colores acotados (máximo tres). Ningún campo aporta hechos comerciales ni autoriza acceso. Se conservan los límites de entrada, el historial acotado, la separación por slug y las comprobaciones de precio/variante/stock.
+Se añaden `pending`, `shownProductIds`, `excludedProductIds`, `excludedColors` `style` e `interest` a la memoria no confiable ya existente. Estados pendientes limitados a enumeraciones, IDs filtrados contra el catálogo actual (máximo cuatro) y colores acotados (máximo tres). Ningún campo aporta hechos comerciales ni autoriza acceso. Se conservan los límites de entrada, el historial acotado, la separación por slug y las comprobaciones de precio/variante/stock.
 
 La intención, los IDs de Gemini y las preferencias no sustituyen la redacción factual del servidor. La política de recuperación de errores y el aviso explícito cuando Gemini no está disponible se mantienen.
 
 ## Pruebas
 
-290/290 pruebas Node aprobadas: 19 nuevas comprobaciones de calidad conversacional y regresiones anteriores. Incluyen regalo → importe corto → música; descubrimiento obligatorio aunque Gemini seleccione IDs; comparación y selección ordinal; ambigüedad; negación de color; cambio de rubro; rechazo → precio → importe; rechazo nombrado; estilo; cortesía con seguimiento; orden de tarjetas y memoria ajena/malformada.
+292/292 pruebas Node aprobadas: 21 nuevas comprobaciones de calidad conversacional y regresiones anteriores. Incluyen regalo → importe corto → música; descubrimiento obligatorio aunque Gemini seleccione IDs; comparación y selección ordinal; ambigüedad; negación de color; cambio de rubro; rechazo → precio → importe; rechazo nombrado; estilo; cortesía con seguimiento; orden de tarjetas y memoria ajena/malformada.
 
 Se actualizaron dos entradas de pruebas de contrato Gemini para especificar ropa: siguen comprobando precios del servidor, deduplicación y rechazo de IDs inventados, sin exigir que un regalo sin preferencias salte el descubrimiento.
 
@@ -31,3 +31,5 @@ Comando: `node --test --test-isolation=none server/*.test.mjs training-lab/*.tes
 Las conversaciones reales del Preview actualizado y su proveedor se registran en el PR #7 con SHA/despliegue. Esta revisión no constituye una medición de conversión ni una prueba con compradores reales. No se cambian Production, variables, claves, datos, SQL ni Supabase remoto.
 
 Preview fcceeb6: comprobación real de cinco turnos con proveedor Gemini — regalo sin idea → pregunta de presupuesto; «200» → pregunta por gustos; «Le gusta la música» → Audífonos S/159 y Parlante S/189; «Compara ambos» → esas mismas dos opciones; «Me quedo con el segundo» → Parlante y una sola tarjeta, sin confirmar pedido. Se completó además el reconocimiento contextual de todos los colores admitidos (no solo negro), con prueba de Camisa Arena → no Arena → Blanco y rechazo correcto de Gris no publicado. El resultado del Preview final está en el PR.
+
+También se conserva un interés libre de hasta 80 caracteres cuando responde a la pregunta pendiente de gustos, para que Gemini pueda valorar preferencias como videojuegos sin depender de una lista cerrada de palabras. Ese texto es dato no confiable; no se usa como atributo comercial ni se registra en diagnósticos. Si responde «No sé», se muestran categorías reales en lugar de repetir la pregunta. Pruebas nuevas cubren ambas rutas.
