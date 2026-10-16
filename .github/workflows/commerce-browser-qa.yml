@@ -1,0 +1,28 @@
+name: MenuIA Browser QA
+on:
+  push:
+    branches:
+      - feature/menuia-commerce-browser-qa
+  pull_request:
+    branches:
+      - feature/menuia-commercial-skills-v2-validate
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium runner
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Validate commercial regression
+        run: node --test server/*.test.mjs training-lab/*.test.cjs
+      - name: Test chat, product detail and local cart in Chromium
+        run: node scripts/qa-commerce-browser.mjs
