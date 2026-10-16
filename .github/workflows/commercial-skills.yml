@@ -23,6 +23,6 @@ jobs:
         with:
           node-version: '22'
       - name: Validate commercial skills and orchestrator
-        run: node --test --test-isolation=none server/commercial-skills.test.mjs server/commercial-skills-v2.test.mjs server/sales-orchestrator.test.mjs
+        run: node --test server/commercial-skills.test.mjs server/commercial-skills-v2.test.mjs server/sales-orchestrator.test.mjs
       - name: Full regression
-        run: node --test --test-isolation=none server/*.test.mjs training-lab/*.test.cjs
+        run: node --test server/*.test.mjs training-lab/*.test.cjs
