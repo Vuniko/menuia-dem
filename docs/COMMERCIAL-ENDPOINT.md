@@ -50,3 +50,7 @@ Límites de la fuente actual: hasta 1000 productos por respuesta (la API heredad
 ## Siguiente paso
 
 Publicar la primera tienda con sus productos en el portal existente, abrir su enlace desde «Abrir mi tienda publicada» en Preview y verificar datos reales sin escrituras desde V3. Después, según autorización explícita, revisar cuotas persistentes, proyección comercial directa, agrupación de variantes y conexión del checkout/tickets existentes. Mantener separado el PR del cambio de Production.
+
+## Publicación autorizada
+El usuario autorizó publicar en la web principal y comenzar con una tienda de demostración. Se preservan portal, tienda, tickets y API comercial existentes. El slug reservado menuia-demo sirve datos ficticios explícitos de solo lectura sin crear usuarios, pedidos ni inventario remoto. La portada consulta ese catálogo por el endpoint separado. Se admite el dominio público en POST de producción. Los catálogos de comerciantes siguen resolviéndose por slug y sin fallback. El stock de esta demostración no representa existencias reales.
+
