@@ -1,0 +1,9 @@
+// Synthetic local UI fixture. No requests reach Supabase and no email is sent.
+import http from 'node:http';import {readFile} from 'node:fs/promises';import {createCommerceHandler} from './commerce.mjs';
+if(process.argv.includes('--serve')){
+let confirmed=false,shops=[];const user=()=>({id:'11111111-1111-4111-8111-111111111111',email:'fixture@example.invalid',email_confirmed_at:confirmed?'2026-10-16T00:00:00Z':null});
+const fetcher=async(url,o)=>{const u=new URL(url);let data={};if(u.pathname.endsWith('/signup'))data={user:user()};else if(u.pathname.endsWith('/verify')||u.pathname.endsWith('/token')){confirmed=true;data={access_token:'fixture-access',refresh_token:'fixture-refresh',user:user()};}else if(u.pathname.endsWith('/auth/v1/user'))data=user();else if(u.pathname.endsWith('/shop_businesses')){if(o.method==='POST'){shops.push({...JSON.parse(o.body),id:'22222222-2222-4222-8222-222222222222'});data=[shops.at(-1)];}else data=shops;}else if(u.pathname.includes('/rest/'))data=[];return new Response(JSON.stringify(data));};
+const handler=createCommerceHandler({env:{},fetcher});const root=new URL('../',import.meta.url);const mime={html:'text/html; charset=utf-8',mjs:'text/javascript',js:'text/javascript',css:'text/css',json:'application/json',svg:'image/svg+xml'};
+http.createServer(async(req,res)=>{if(req.url.startsWith('/api/commerce')){if(!confirmed)delete req.headers.cookie;return handler(req,res);}const path=new URL(req.url,'http://local').pathname;if(!(path==='/negocios/'||path.startsWith('/assets/'))){res.writeHead(404);return res.end();}try{const file=new URL('.'+(path.endsWith('/')?path+'index.html':path),root);const bytes=await readFile(file);res.setHeader('Content-Type',mime[file.pathname.split('.').at(-1)]||'text/plain');res.end(bytes);}catch{res.writeHead(404);res.end();}}).listen(8820,'127.0.0.1',()=>console.log('Registration UI synthetic fixture at http://127.0.0.1:8820/negocios/'));
+}
+
