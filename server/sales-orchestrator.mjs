@@ -55,7 +55,7 @@ export function respondWithSalesPlan(c,message,plan){
  if(plan.intent==='compare'&&plan.skillResult?.complete){
   const items=plan.skillResult.items;
   plan.state.shownProductIds=items.map(x=>x.productId);
-  return {...base,answer:(c.isDemonstration?'Demostración: precios y stock ficticios.\\n':'')+plan.skillResult.answer,products:items.map(x=>x.productId),variantIds:items.map(x=>x.variantId),memory:plan.state,provider:'catalog'};
+  return {...base,answer:(c.isDemonstration?'Demostración: precios y stock ficticios.\n':'')+plan.skillResult.answer,products:items.map(x=>x.productId),variantIds:items.map(x=>x.variantId),memory:plan.state,provider:'catalog'};
  }
  return {...base,provider:'catalog'};
 }
