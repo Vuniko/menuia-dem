@@ -4,16 +4,17 @@ import {normalize,money} from '../assets/commerce-v3-model.mjs';
 const price=({p,v})=>v.priceCents??p.priceCents;
 const unique=rows=>[...new Map(rows.map(row=>[row.p.id,row])).values()];
 const facts=({p,v})=>({productId:p.id,variantId:v.id,name:p.name,priceCents:price({p,v}),attributes:{...v.attributes},quantity:v.stock.quantity});
-function safeRows(c,rows){
+function safeRows(c,rows,{dedupe=true}={}){
  const products=new Map(c.products.map(p=>[p.id,p]));
  const variants=new Map(c.variants.map(v=>[v.id,v]));
  if(!Array.isArray(rows))return [];
- return unique(rows.flatMap(row=>{
+ const verified=rows.flatMap(row=>{
   const p=products.get(row?.p?.id),v=variants.get(row?.v?.id);
   if(!p||!v||v.productId!==p.id||!Number.isSafeInteger(v.stock?.quantity)||v.stock.quantity<=0)return [];
   const amount=v.priceCents??p.priceCents;
   return Number.isSafeInteger(amount)&&amount>0?[{p,v}]:[];
- }));
+ });
+ return dedupe?unique(verified):verified;
 }
 export function discoverNeeds({catalog,state}){
  const missing=[];
@@ -57,7 +58,7 @@ export function resolveVariants({catalog,state={},candidates=[]}){
  const variants=catalog.variants.filter(v=>v.productId===product.id);
  const available=variants.filter(v=>Number.isSafeInteger(v.stock?.quantity)&&v.stock.quantity>0);
  const matches=available.filter(v=>(!state.color||normalize(v.attributes?.color)===normalize(state.color))&&(!state.size||normalize(v.attributes?.talla)===normalize(state.size))&&(state.budget===undefined||(v.priceCents??product.priceCents)<=state.budget));
- const matched=safeRows(catalog,matches.map(v=>({p:product,v})));
+ const matched=safeRows(catalog,matches.map(v=>({p:product,v})),{dedupe:false});
  if(!matched.length)return {skill:'resolveVariants',status:'unavailable',items:[],answer:'No encuentro una variante disponible de '+product.name+' con esas preferencias. ¿Querés cambiar la talla o el color?'};
  const distinct=[...new Map(matched.map(({p,v})=>[v.id,facts({p,v})])).values()].slice(0,12);
  const needChoice=distinct.length>1;
@@ -67,7 +68,7 @@ export function guideCart({catalog,state={}}){
  const product=catalog.products.find(p=>p.id===state.productId);
  if(!product)return {skill:'guideCart',status:'need_product',items:[],canAdd:false,answer:'¿Qué producto te gustaría agregar al carrito?'};
  const available=catalog.variants.filter(v=>v.productId===product.id&&Number.isSafeInteger(v.stock?.quantity)&&v.stock.quantity>0&&(!state.size||normalize(v.attributes?.talla)===normalize(state.size))&&(!state.color||normalize(v.attributes?.color)===normalize(state.color))&&(state.budget===undefined||(v.priceCents??product.priceCents)<=state.budget));
- const rows=safeRows(catalog,available.map(v=>({p:product,v})));
+ const rows=safeRows(catalog,available.map(v=>({p:product,v})),{dedupe:false});
  if(!rows.length)return {skill:'guideCart',status:'unavailable',items:[],canAdd:false,answer:'Esa combinación no está disponible al consultar. Podemos revisar otra talla o color antes de continuar.'};
  if(rows.length!==1)return {skill:'guideCart',status:'choose_variant',items:rows.slice(0,12).map(facts),canAdd:false,answer:'¡Buena elección! Abrí la ficha de '+product.name+' y seleccioná la variante que quieras antes de añadirla al carrito.'};
  return {skill:'guideCart',status:'ready_for_product_page',items:rows.map(facts),selectedVariantId:rows[0].v.id,canAdd:false,answer:'¡Genial! La variante de '+product.name+' figura disponible. Abrí su ficha para comprobar los datos y añadirla al carrito. No se realizó ninguna compra ni reserva.'};
