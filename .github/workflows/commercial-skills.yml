@@ -1,0 +1,28 @@
+name: MenuIA Commercial Skills CI
+on:
+  push:
+    branches:
+      - feature/menuia-commercial-skills-v2-validate
+  pull_request:
+    branches:
+      - feature/menuia-commercial-skills-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  commercial-skills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate commercial skills and orchestrator
+        run: node --test --test-isolation=none server/commercial-skills.test.mjs server/commercial-skills-v2.test.mjs server/sales-orchestrator.test.mjs
+      - name: Full regression
+        run: node --test --test-isolation=none server/*.test.mjs training-lab/*.test.cjs
