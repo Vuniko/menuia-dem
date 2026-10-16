@@ -35,7 +35,7 @@ Cada respuesta emite IDs únicos de producto y la variante elegida. Solo queda u
 
 Comando: `node --test --test-isolation=none server/*.test.mjs training-lab/*.test.cjs`.
 
-Resultado completo: **247/247 pruebas aprobadas**. La batería nueva contiene 100 escenarios: 15 saludos/abiertos, 20 búsquedas, 15 presupuestos, 15 comparaciones, 15 seguimientos, 10 de disponibilidad y 10 adversariales/condiciones. Casos adicionales verifican memoria entre turnos/tiendas, precio de variante, agrupamiento de demo, contratos Gemini, IDs duplicados/no elegibles, errores, cuota y concurrencia. Los tests Gemini usan clave sintética y respuestas simuladas: no son evidencia del proveedor real.
+Resultado completo: **248/248 pruebas aprobadas**. La batería nueva contiene 100 escenarios: 15 saludos/abiertos, 20 búsquedas, 15 presupuestos, 15 comparaciones, 15 seguimientos, 10 de disponibilidad y 10 adversariales/condiciones. Casos adicionales verifican memoria entre turnos/tiendas, precio de variante, agrupamiento de demo, contratos Gemini, IDs duplicados/no elegibles, errores, cuota y concurrencia. Los tests Gemini usan clave sintética y respuestas simuladas: no son evidencia del proveedor real.
 
 Navegador local con fixtures explícitos: saludo → descubrimiento; regalo para hermano por S/200 → Polo QA S/49.90; «¿Y en negro?» → no inventa variante; «¿qué talle?» → conserva referencia y una sola tarjeta. Abrir tarjeta → ficha con talla M/color Azul y stock 3 del fixture. Demo agrupada: Camisa de lino M/Arena → una tarjeta S/129 y variante correspondiente.
 
@@ -51,3 +51,11 @@ Chat sin overflow de página en anchos 320, 375, 390, 414, 430, 768 y 1280; anch
 ## Preview verificado
 
 PR borrador #7: https://github.com/Vuniko/menuia-dem/pull/7. Preview de rama: https://menuia-dem-git-feature-menuia-sales-agent-v2-vuniko.vercel.app/. Vercel informó Ready para el commit de implementación 10741e1. Navegador autorizado: carga del catálogo demo y POST de saludo completados, con el aviso de datos ficticios y respuesta natural. El estado visible fue «Respuesta basada en el catálogo publicado»: esta rama funciona con provider catalog y no se ha verificado Gemini real. No se cambiaron variables para habilitarlo. La API administrativa Vercel rechazó inspección por permisos; el acceso HTTP externo encontró autenticación de Preview. Se usó el navegador autorizado para la prueba funcional, sin modificar protecciones.
+
+## Validación Gemini real — 16 octubre 2026
+
+El usuario autorizó configurar GEMINI_API_KEY exclusivamente para Preview de feature/menuia-sales-agent-v2 y redesplegar esa rama. Se comprobó la variable Secret con ese alcance; Production no se modificó. Despliegue autorizado H3chhg7WY7B243cdhQ2dpGcVcLRw (09f3da7), estado Ready, URL https://menuia-h9yhvzr6e-vuniko.vercel.app/.
+
+En navegador, el estado «Selección con Gemini · precios y existencias del catálogo» confirmó llamadas reales en: saludo abierto; regalo para hermano por S/200 (audífonos S/159, parlante/mochila S/189, zapatillas retro S/199); Polo esencial talla M; seguimiento «¿Y en negro?» (mantiene M, S/59, 7 unidades ficticias); comparación Audífonos inalámbricos S/159 y Teclado compacto S/129 tras empezar de nuevo. Las tarjetas se reemplazaron sin duplicados y los datos se obtuvieron del catálogo demo, no de stock real de comerciantes.
+
+El caso «¿algo más barato?» sin alternativas elegibles dio error recuperable dos veces, sin duplicar la pregunta. La revisión mostró que se enviaba un catálogo vacío al modelo. Se añade retorno determinístico provider catalog cuando no hay candidatos: no inventa alternativas ni consume una llamada Gemini. Prueba nueva de integración verifica estado 200, productos vacíos, preferencias conservadas y cero llamadas de modelo. Batería completa: 248/248. Esta corrección se entrega por el mismo PR y su Preview automático; el resultado desplegado se registra en el PR.
