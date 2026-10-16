@@ -54,3 +54,6 @@ Publicar la primera tienda con sus productos en el portal existente, abrir su en
 ## Publicación autorizada
 El usuario autorizó publicar en la web principal y comenzar con una tienda de demostración. Se preservan portal, tienda, tickets y API comercial existentes. El slug reservado menuia-demo sirve datos ficticios explícitos de solo lectura sin crear usuarios, pedidos ni inventario remoto. La portada consulta ese catálogo por el endpoint separado. Se admite el dominio público en POST de producción. Los catálogos de comerciantes siguen resolviéndose por slug y sin fallback. El stock de esta demostración no representa existencias reales.
 
+
+Publicación completada: dpl_GvaU9D4kRDUjZtcfAVUy7B8Teeks (commit 2dbfce1). GET anónimo de portada, negocios, tienda, catálogo y endpoint separado: HTTP 200 sin redirección a Vercel. POST público de consulta respondió con proveedor catalog, precio S/179, tallas y existencias ficticias; verificado también desde navegador. La muestra contiene 60 variantes como registros independientes. No se verificó Gemini ni checkout con datos reales.
+
