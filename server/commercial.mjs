@@ -26,7 +26,7 @@ export function publicCatalog(payload,slug,{now=Date.now(),modelAvailable=false}
    for(const [name,value]of Object.entries(v.attributes)){let def=group.attributeDefinitions.find(d=>d.name===name);if(!def){def={name,type:'select',values:[]};group.attributeDefinitions.push(def);}if(!def.values.includes(value))def.values.push(value);}
   }
   const mapped=new Set(variants.filter(v=>groups.has(v.productId)).map(v=>v.id));
-  const ungrouped=products.filter(p=>!mapped.has(p.id));products.splice(0,products.length,...groups.values(),...ungrouped);
+  const ungrouped=products.filter(p=>!mapped.has(p.id));products.splice(0,products.length,...groups.values(),...ungrouped);products.forEach((p,i)=>{p.featured=i<4;});
  }
  business.cover=products.find(p=>p.images.length)?.images[0]||null;
  return {version:3,source:'published',demo:false,isDemonstration:payload.isDemonstration===true,checkedAt,business,categories,products,variants,promotions:[],collections:[]};

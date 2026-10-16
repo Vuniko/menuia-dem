@@ -47,3 +47,7 @@ Chat sin overflow de página en anchos 320, 375, 390, 414, 430, 768 y 1280; anch
 - Comparación factual de precio/atributos, sin prometer una evaluación técnica no publicada. Si no se identifican ambos productos, se solicitan sus nombres.
 - Catálogo máximo 1000 filas y agrupación real pendiente de identidad explícita. No se cambian stock remoto, reservas, checkout ni funciones gastronómicas.
 - Gemini real solo se declara verificado si Preview devuelve `provider: gemini` en una petición real. No se leen ni trasladan claves para conseguirlo. El estado de Preview y esa comprobación se registran en el PR/informe de entrega.
+
+## Preview verificado
+
+PR borrador #7: https://github.com/Vuniko/menuia-dem/pull/7. Preview de rama: https://menuia-dem-git-feature-menuia-sales-agent-v2-vuniko.vercel.app/. Vercel informó Ready para el commit de implementación 10741e1. Navegador autorizado: carga del catálogo demo y POST de saludo completados, con el aviso de datos ficticios y respuesta natural. El estado visible fue «Respuesta basada en el catálogo publicado»: esta rama funciona con provider catalog y no se ha verificado Gemini real. No se cambiaron variables para habilitarlo. La API administrativa Vercel rechazó inspección por permisos; el acceso HTTP externo encontró autenticación de Preview. Se usó el navegador autorizado para la prueba funcional, sin modificar protecciones.
