@@ -31,7 +31,7 @@ export function recommendProducts({catalog,candidates,state,limit=3}){
  const rows=allowed.sort((a,b)=>price(a)-price(b)||a.p.name.localeCompare(b.p.name,'es')).slice(0,Math.max(0,Math.min(3,limit)));
  return {skill:'recommendProducts',items:rows.map(facts),total:allowed.length,reason:state.budget!==undefined?'Opciones individuales dentro del presupuesto y con existencias publicadas.':'Opciones disponibles según las preferencias indicadas.'};
 }
-export function compareProducts({catalog,candidates,requestedIds=[]}){
+export function compareProducts({catalog,candidates,requestedIds=[],message='',state={}}){
  const allowed=safeRows(catalog,candidates);
  const ids=[...new Set(requestedIds.filter(id=>typeof id==='string'))].slice(0,2);
  const rows=ids.length===2?ids.map(id=>allowed.find(x=>x.p.id===id)).filter(Boolean):allowed.slice(0,2);
@@ -40,7 +40,22 @@ export function compareProducts({catalog,candidates,requestedIds=[]}){
  const amounts=items.map(x=>money(x.priceCents));
  const shared=[...new Set(items.flatMap(x=>Object.keys(x.attributes)))];
  const lines=shared.map(k=>k+': '+items.map(x=>String(x.attributes[k]??'No especificado')).join(' / '));
- const answer='Podemos comparar los datos del catálogo publicado: '+items[0].name+' ('+amounts[0]+') y '+items[1].name+' ('+amounts[1]+').'+(lines.length?' '+lines.join('. ')+'.':'')+' Las existencias pueden cambiar. ¿Qué característica te importa más?';
+ const q=normalize(message);
+ const asksAdvice=/recomiend|cual (me )?(conviene|elegirias|elegir|es mejor)|que (me )?aconsej/.test(q);
+ const isHeadphones=x=>/audifon|auricular/.test(normalize(x.name));
+ const isSpeaker=x=>/parlante|altavoz|bocina/.test(normalize(x.name));
+ const headphones=items.find(isHeadphones),speaker=items.find(isSpeaker);
+ // Usage guidance is conditional and category-level, not a fabricated product specification.
+ const useGuidance=headphones&&speaker
+  ?' Si suele escuchar música para sí mismo, los audífonos pueden ser más adecuados; si prefiere compartir música, un parlante puede encajar mejor.'
+  :'';
+ const recipient=/herman/.test(q)||/herman/.test(normalize(state.recipient));
+ const intro=recipient?'Para el regalo de tu hermano, ':'';
+ const factsLine=items[0].name+' ('+amounts[0]+') y '+items[1].name+' ('+amounts[1]+').';
+ const question=asksAdvice&&useGuidance?' ¿Suele escuchar música solo o con otras personas?':' ¿Qué característica te importa más?';
+ const answer=asksAdvice
+  ?intro+'estas son las dos opciones del catálogo: '+factsLine+(lines.length?' '+lines.join('. ')+'.':'')+useGuidance+' No puedo asegurar otras prestaciones sin datos publicados.'+question
+  :'Podemos comparar los datos del catálogo publicado: '+factsLine+(lines.length?' '+lines.join('. ')+'.':'')+' Las existencias pueden cambiar.'+question;
  return {skill:'compareProducts',items,complete:true,answer};
 }
 export function handleObjection({catalog,candidates,state,message}){
