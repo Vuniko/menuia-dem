@@ -1,5 +1,20 @@
 // Diagnostics deliberately exclude prompts, model text, keys, URLs and user data.
 const reasons=new Set(['STOP','MAX_TOKENS','SAFETY','RECITATION','OTHER','BLOCKLIST','PROHIBITED_CONTENT','SPII','MALFORMED_FUNCTION_CALL']);
+export const transientModelCodes=new Set(['MODEL_UPSTREAM','MODEL_RATE_LIMIT','MODEL_TIMEOUT','MODEL_NETWORK']);
+export async function requestModel(url,options,{fetcher=fetch,sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms)),random=Math.random,onAttempt=()=>{}}={}){
+ for(let attempt=1;attempt<=2;attempt++){
+  let response;
+  try{response=await fetcher(url,options);}catch(error){throw Object.assign(modelFailure(['TimeoutError','AbortError'].includes(error.name)?'MODEL_TIMEOUT':'MODEL_NETWORK'),{attempts:attempt});}
+  if(response.ok)return {response,attempts:attempt};
+  const error=Object.assign(upstreamFailure(response),{attempts:attempt});
+  try{onAttempt({attempt,code:error.code,upstreamStatus:response.status});}catch{}
+  // Retry only explicit transient HTTP failures, never an ambiguous network error.
+  const retrySeconds=Number(response.headers.get('Retry-After'))||0;
+  if(attempt===2||![408,500,502,503,504].includes(response.status)||retrySeconds>2)throw error;
+  await response.body?.cancel();
+  await sleep(Math.max(retrySeconds*1000,500+Math.floor(random()*500)));
+ }
+}
 export function modelFailure(code,{upstreamStatus=0,finishReason=null,retryAfter=0}={}){
  const status=code==='MODEL_RATE_LIMIT'?429:['MODEL_JSON','MODEL_SELECTION','MODEL_TRUNCATED','MODEL_BLOCKED'].includes(code)?502:503;
  return Object.assign(new Error('No pudimos completar la consulta al modelo. Puedes reintentar.'),{status,code,upstreamStatus,finishReason:reasons.has(finishReason)?finishReason:null,retryAfter});
