@@ -1,0 +1,1841 @@
+{
+  "version": 3,
+  "source": "fixture",
+  "demo": true,
+  "business": {
+    "id": "atelier-demo",
+    "name": "Atelier Store",
+    "description": "Una selección para vestir, vivir y disfrutar lo cotidiano.",
+    "slug": "atelier-store",
+    "logo": null,
+    "cover": "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=1000&q=85",
+    "colors": {
+      "background": "#FFFFFF",
+      "secondary": "#F7F7F5",
+      "text": "#181818",
+      "accent": "#B8A58B",
+      "border": "#E7E7E4"
+    },
+    "hero": {
+      "eyebrow": "OBJETOS PARA TU DÍA A DÍA",
+      "title": "Lo simple.\nLo que se queda.",
+      "description": "Estilo, diseño y pequeños descubrimientos para hacer tuyo cada día.",
+      "cta": "Explorar la colección"
+    },
+    "announcements": [],
+    "commercialInfo": [],
+    "assistant": {
+      "status": "pending",
+      "endpoint": null
+    }
+  },
+  "categories": [
+    {
+      "id": "ropa",
+      "businessId": "atelier-demo",
+      "name": "Ropa",
+      "description": "Texturas y siluetas para cada día.",
+      "order": 0,
+      "image": "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=1000&q=85"
+    },
+    {
+      "id": "calzado",
+      "businessId": "atelier-demo",
+      "name": "Calzado",
+      "description": "Encuentra tu próximo paso.",
+      "order": 1,
+      "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=1000&q=85"
+    },
+    {
+      "id": "tecnologia",
+      "businessId": "atelier-demo",
+      "name": "Tecnología",
+      "description": "Objetos que simplifican tu rutina.",
+      "order": 2,
+      "image": "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=1000&q=85"
+    },
+    {
+      "id": "accesorios",
+      "businessId": "atelier-demo",
+      "name": "Accesorios",
+      "description": "Los detalles también cuentan.",
+      "order": 3,
+      "image": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=1000&q=85"
+    },
+    {
+      "id": "hogar",
+      "businessId": "atelier-demo",
+      "name": "Hogar",
+      "description": "Haz espacio para lo que te gusta.",
+      "order": 4,
+      "image": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1000&q=85"
+    }
+  ],
+  "products": [
+    {
+      "id": "atelier-1",
+      "businessId": "atelier-demo",
+      "categoryId": "ropa",
+      "name": "Camisa de lino",
+      "description": "Una silueta relajada para los días que piden calma.",
+      "brand": "Atelier Basics",
+      "priceCents": 12900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "talla",
+          "type": "select",
+          "values": [
+            "S",
+            "M",
+            "L"
+          ]
+        },
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Arena",
+            "Blanco"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": true
+    },
+    {
+      "id": "atelier-2",
+      "businessId": "atelier-demo",
+      "categoryId": "ropa",
+      "name": "Polo esencial",
+      "description": "Algodón suave y un corte que acompaña todos tus días.",
+      "brand": "Atelier Basics",
+      "priceCents": 5900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "talla",
+          "type": "select",
+          "values": [
+            "S",
+            "M",
+            "L"
+          ]
+        },
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Blanco",
+            "Negro"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-3",
+      "businessId": "atelier-demo",
+      "categoryId": "ropa",
+      "name": "Chompa de punto",
+      "description": "Textura cálida, cuello redondo y líneas sencillas.",
+      "brand": null,
+      "priceCents": 14900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "talla",
+          "type": "select",
+          "values": [
+            "M",
+            "L"
+          ]
+        },
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Crema",
+            "Gris"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-4",
+      "businessId": "atelier-demo",
+      "categoryId": "ropa",
+      "name": "Jean recto",
+      "description": "Denim de corte recto para combinar a tu manera.",
+      "brand": null,
+      "priceCents": 13900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "talla",
+          "type": "select",
+          "values": [
+            "28",
+            "30",
+            "32"
+          ]
+        },
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Índigo"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-5",
+      "businessId": "atelier-demo",
+      "categoryId": "calzado",
+      "name": "Zapatillas urbanas",
+      "description": "Perfil limpio, cordones y suela de goma.",
+      "brand": "Forma Studio",
+      "priceCents": 17900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "talla",
+          "type": "select",
+          "values": [
+            "38",
+            "39",
+            "40",
+            "41"
+          ]
+        },
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Blanco"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": true
+    },
+    {
+      "id": "atelier-6",
+      "businessId": "atelier-demo",
+      "categoryId": "calzado",
+      "name": "Zapatillas retro",
+      "description": "Una mirada a lo clásico, con detalles de contraste.",
+      "brand": "Forma Studio",
+      "priceCents": 19900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "talla",
+          "type": "select",
+          "values": [
+            "37",
+            "38",
+            "39",
+            "40"
+          ]
+        },
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Crema",
+            "Verde"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-7",
+      "businessId": "atelier-demo",
+      "categoryId": "calzado",
+      "name": "Zapatillas de lona",
+      "description": "Ligeras y versátiles, con una estética atemporal.",
+      "brand": null,
+      "priceCents": 11900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "talla",
+          "type": "select",
+          "values": [
+            "36",
+            "37",
+            "38",
+            "39"
+          ]
+        },
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Negro"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-8",
+      "businessId": "atelier-demo",
+      "categoryId": "calzado",
+      "name": "Zapatillas running",
+      "description": "Capellada de malla y diseño para tu rutina.",
+      "brand": null,
+      "priceCents": 24900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "talla",
+          "type": "select",
+          "values": [
+            "38",
+            "40",
+            "42"
+          ]
+        },
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Rojo"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-9",
+      "businessId": "atelier-demo",
+      "categoryId": "tecnologia",
+      "name": "Audífonos inalámbricos",
+      "description": "Tu música, en un formato compacto con estuche de carga.",
+      "brand": "Nexo Objects",
+      "priceCents": 15900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Negro",
+            "Blanco"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": true
+    },
+    {
+      "id": "atelier-10",
+      "businessId": "atelier-demo",
+      "categoryId": "tecnologia",
+      "name": "Teclado compacto",
+      "description": "Un escritorio más simple. Conexión USB y formato compacto.",
+      "brand": "Nexo Objects",
+      "priceCents": 12900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Negro"
+          ]
+        },
+        {
+          "name": "conexion",
+          "type": "select",
+          "values": [
+            "USB"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-11",
+      "businessId": "atelier-demo",
+      "categoryId": "tecnologia",
+      "name": "Tablet multimedia",
+      "description": "Pantalla de 10 pulgadas y conectividad Wi-Fi.",
+      "brand": null,
+      "priceCents": 74900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "capacidad",
+          "type": "select",
+          "values": [
+            "64 GB",
+            "128 GB"
+          ]
+        },
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Gris"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-12",
+      "businessId": "atelier-demo",
+      "categoryId": "tecnologia",
+      "name": "Parlante portátil",
+      "description": "Sonido por Bluetooth en un formato fácil de llevar.",
+      "brand": null,
+      "priceCents": 18900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Negro",
+            "Arena"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-13",
+      "businessId": "atelier-demo",
+      "categoryId": "accesorios",
+      "name": "Bolso de diario",
+      "description": "Líneas limpias, interior amplio y cierre superior.",
+      "brand": "Atelier Objects",
+      "priceCents": 16900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Camel",
+            "Negro"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": true
+    },
+    {
+      "id": "atelier-14",
+      "businessId": "atelier-demo",
+      "categoryId": "accesorios",
+      "name": "Reloj minimalista",
+      "description": "Esfera sencilla y correa intercambiable.",
+      "brand": "Atelier Objects",
+      "priceCents": 21900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Arena",
+            "Negro"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-15",
+      "businessId": "atelier-demo",
+      "categoryId": "accesorios",
+      "name": "Gafas de sol",
+      "description": "Montura de líneas suaves. Protección UV no certificada en esta demo.",
+      "brand": null,
+      "priceCents": 9900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Carey",
+            "Negro"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-16",
+      "businessId": "atelier-demo",
+      "categoryId": "accesorios",
+      "name": "Mochila urbana",
+      "description": "Compartimento principal con cierre y bolsillos exteriores.",
+      "brand": null,
+      "priceCents": 18900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Gris",
+            "Negro"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-17",
+      "businessId": "atelier-demo",
+      "categoryId": "hogar",
+      "name": "Lámpara de mesa",
+      "description": "Luz y formas simples para tu rincón favorito.",
+      "brand": "Casa Serena",
+      "priceCents": 22900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Blanco",
+            "Negro"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": true
+    },
+    {
+      "id": "atelier-18",
+      "businessId": "atelier-demo",
+      "categoryId": "hogar",
+      "name": "Silla de estudio",
+      "description": "Respaldo de líneas curvas y estructura para interiores.",
+      "brand": "Casa Serena",
+      "priceCents": 34900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Natural"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-19",
+      "businessId": "atelier-demo",
+      "categoryId": "hogar",
+      "name": "Cojín texturado",
+      "description": "Una textura suave para renovar tus espacios.",
+      "brand": null,
+      "priceCents": 7900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Arena",
+            "Oliva"
+          ]
+        },
+        {
+          "name": "medida",
+          "type": "select",
+          "values": [
+            "45 × 45 cm"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": false
+    },
+    {
+      "id": "atelier-20",
+      "businessId": "atelier-demo",
+      "categoryId": "hogar",
+      "name": "Taza de cerámica",
+      "description": "Un pequeño ritual para tus pausas del día.",
+      "brand": null,
+      "priceCents": 4900,
+      "currency": "PEN",
+      "images": [
+        "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=1000&q=85&h=800&crop=top"
+      ],
+      "status": "published",
+      "attributeDefinitions": [
+        {
+          "name": "color",
+          "type": "select",
+          "values": [
+            "Marfil",
+            "Terracota"
+          ]
+        },
+        {
+          "name": "capacidad",
+          "type": "select",
+          "values": [
+            "300 ml"
+          ]
+        }
+      ],
+      "attributes": {},
+      "featured": true
+    }
+  ],
+  "variants": [
+    {
+      "id": "atelier-1-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-1",
+      "sku": "ATL-01-0",
+      "attributes": {
+        "talla": "S",
+        "color": "Arena"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-1-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-1",
+      "sku": "ATL-01-1",
+      "attributes": {
+        "talla": "S",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-1-v2",
+      "businessId": "atelier-demo",
+      "productId": "atelier-1",
+      "sku": "ATL-01-2",
+      "attributes": {
+        "talla": "M",
+        "color": "Arena"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 6,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-1-v3",
+      "businessId": "atelier-demo",
+      "productId": "atelier-1",
+      "sku": "ATL-01-3",
+      "attributes": {
+        "talla": "M",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 7,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-1-v4",
+      "businessId": "atelier-demo",
+      "productId": "atelier-1",
+      "sku": "ATL-01-4",
+      "attributes": {
+        "talla": "L",
+        "color": "Arena"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 8,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-1-v5",
+      "businessId": "atelier-demo",
+      "productId": "atelier-1",
+      "sku": "ATL-01-5",
+      "attributes": {
+        "talla": "L",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 9,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-2-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-2",
+      "sku": "ATL-02-0",
+      "attributes": {
+        "talla": "S",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-2-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-2",
+      "sku": "ATL-02-1",
+      "attributes": {
+        "talla": "S",
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-2-v2",
+      "businessId": "atelier-demo",
+      "productId": "atelier-2",
+      "sku": "ATL-02-2",
+      "attributes": {
+        "talla": "M",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 6,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-2-v3",
+      "businessId": "atelier-demo",
+      "productId": "atelier-2",
+      "sku": "ATL-02-3",
+      "attributes": {
+        "talla": "M",
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 7,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-2-v4",
+      "businessId": "atelier-demo",
+      "productId": "atelier-2",
+      "sku": "ATL-02-4",
+      "attributes": {
+        "talla": "L",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 8,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-2-v5",
+      "businessId": "atelier-demo",
+      "productId": "atelier-2",
+      "sku": "ATL-02-5",
+      "attributes": {
+        "talla": "L",
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 9,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-3-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-3",
+      "sku": "ATL-03-0",
+      "attributes": {
+        "talla": "M",
+        "color": "Crema"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-3-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-3",
+      "sku": "ATL-03-1",
+      "attributes": {
+        "talla": "M",
+        "color": "Gris"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-3-v2",
+      "businessId": "atelier-demo",
+      "productId": "atelier-3",
+      "sku": "ATL-03-2",
+      "attributes": {
+        "talla": "L",
+        "color": "Crema"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 6,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-3-v3",
+      "businessId": "atelier-demo",
+      "productId": "atelier-3",
+      "sku": "ATL-03-3",
+      "attributes": {
+        "talla": "L",
+        "color": "Gris"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 7,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-4-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-4",
+      "sku": "ATL-04-0",
+      "attributes": {
+        "talla": "28",
+        "color": "Índigo"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-4-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-4",
+      "sku": "ATL-04-1",
+      "attributes": {
+        "talla": "30",
+        "color": "Índigo"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-4-v2",
+      "businessId": "atelier-demo",
+      "productId": "atelier-4",
+      "sku": "ATL-04-2",
+      "attributes": {
+        "talla": "32",
+        "color": "Índigo"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 6,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-5-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-5",
+      "sku": "ATL-05-0",
+      "attributes": {
+        "talla": "38",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-5-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-5",
+      "sku": "ATL-05-1",
+      "attributes": {
+        "talla": "39",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-5-v2",
+      "businessId": "atelier-demo",
+      "productId": "atelier-5",
+      "sku": "ATL-05-2",
+      "attributes": {
+        "talla": "40",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 6,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-5-v3",
+      "businessId": "atelier-demo",
+      "productId": "atelier-5",
+      "sku": "ATL-05-3",
+      "attributes": {
+        "talla": "41",
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 7,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-6-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-6",
+      "sku": "ATL-06-0",
+      "attributes": {
+        "talla": "37",
+        "color": "Crema"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-6-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-6",
+      "sku": "ATL-06-1",
+      "attributes": {
+        "talla": "37",
+        "color": "Verde"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-6-v2",
+      "businessId": "atelier-demo",
+      "productId": "atelier-6",
+      "sku": "ATL-06-2",
+      "attributes": {
+        "talla": "38",
+        "color": "Crema"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 6,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-6-v3",
+      "businessId": "atelier-demo",
+      "productId": "atelier-6",
+      "sku": "ATL-06-3",
+      "attributes": {
+        "talla": "38",
+        "color": "Verde"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 7,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-6-v4",
+      "businessId": "atelier-demo",
+      "productId": "atelier-6",
+      "sku": "ATL-06-4",
+      "attributes": {
+        "talla": "39",
+        "color": "Crema"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 8,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-6-v5",
+      "businessId": "atelier-demo",
+      "productId": "atelier-6",
+      "sku": "ATL-06-5",
+      "attributes": {
+        "talla": "39",
+        "color": "Verde"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 9,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-6-v6",
+      "businessId": "atelier-demo",
+      "productId": "atelier-6",
+      "sku": "ATL-06-6",
+      "attributes": {
+        "talla": "40",
+        "color": "Crema"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 10,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-6-v7",
+      "businessId": "atelier-demo",
+      "productId": "atelier-6",
+      "sku": "ATL-06-7",
+      "attributes": {
+        "talla": "40",
+        "color": "Verde"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 11,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-7-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-7",
+      "sku": "ATL-07-0",
+      "attributes": {
+        "talla": "36",
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 0,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-7-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-7",
+      "sku": "ATL-07-1",
+      "attributes": {
+        "talla": "37",
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-7-v2",
+      "businessId": "atelier-demo",
+      "productId": "atelier-7",
+      "sku": "ATL-07-2",
+      "attributes": {
+        "talla": "38",
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 6,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-7-v3",
+      "businessId": "atelier-demo",
+      "productId": "atelier-7",
+      "sku": "ATL-07-3",
+      "attributes": {
+        "talla": "39",
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 7,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-8-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-8",
+      "sku": "ATL-08-0",
+      "attributes": {
+        "talla": "38",
+        "color": "Rojo"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-8-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-8",
+      "sku": "ATL-08-1",
+      "attributes": {
+        "talla": "40",
+        "color": "Rojo"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-8-v2",
+      "businessId": "atelier-demo",
+      "productId": "atelier-8",
+      "sku": "ATL-08-2",
+      "attributes": {
+        "talla": "42",
+        "color": "Rojo"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 6,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-9-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-9",
+      "sku": "ATL-09-0",
+      "attributes": {
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-9-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-9",
+      "sku": "ATL-09-1",
+      "attributes": {
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-10-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-10",
+      "sku": "ATL-10-0",
+      "attributes": {
+        "color": "Negro",
+        "conexion": "USB"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-11-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-11",
+      "sku": "ATL-11-0",
+      "attributes": {
+        "capacidad": "64 GB",
+        "color": "Gris"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-11-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-11",
+      "sku": "ATL-11-1",
+      "attributes": {
+        "capacidad": "128 GB",
+        "color": "Gris"
+      },
+      "priceCents": 89900,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-12-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-12",
+      "sku": "ATL-12-0",
+      "attributes": {
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-12-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-12",
+      "sku": "ATL-12-1",
+      "attributes": {
+        "color": "Arena"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-13-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-13",
+      "sku": "ATL-13-0",
+      "attributes": {
+        "color": "Camel"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-13-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-13",
+      "sku": "ATL-13-1",
+      "attributes": {
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-14-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-14",
+      "sku": "ATL-14-0",
+      "attributes": {
+        "color": "Arena"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-14-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-14",
+      "sku": "ATL-14-1",
+      "attributes": {
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-15-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-15",
+      "sku": "ATL-15-0",
+      "attributes": {
+        "color": "Carey"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-15-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-15",
+      "sku": "ATL-15-1",
+      "attributes": {
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-16-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-16",
+      "sku": "ATL-16-0",
+      "attributes": {
+        "color": "Gris"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-16-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-16",
+      "sku": "ATL-16-1",
+      "attributes": {
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-17-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-17",
+      "sku": "ATL-17-0",
+      "attributes": {
+        "color": "Blanco"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-17-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-17",
+      "sku": "ATL-17-1",
+      "attributes": {
+        "color": "Negro"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-18-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-18",
+      "sku": "ATL-18-0",
+      "attributes": {
+        "color": "Natural"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "unknown",
+        "quantity": null
+      }
+    },
+    {
+      "id": "atelier-19-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-19",
+      "sku": "ATL-19-0",
+      "attributes": {
+        "color": "Arena",
+        "medida": "45 × 45 cm"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-19-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-19",
+      "sku": "ATL-19-1",
+      "attributes": {
+        "color": "Oliva",
+        "medida": "45 × 45 cm"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-20-v0",
+      "businessId": "atelier-demo",
+      "productId": "atelier-20",
+      "sku": "ATL-20-0",
+      "attributes": {
+        "color": "Marfil",
+        "capacidad": "300 ml"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 4,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    },
+    {
+      "id": "atelier-20-v1",
+      "businessId": "atelier-demo",
+      "productId": "atelier-20",
+      "sku": "ATL-20-1",
+      "attributes": {
+        "color": "Terracota",
+        "capacidad": "300 ml"
+      },
+      "priceCents": null,
+      "stock": {
+        "status": "verified",
+        "quantity": 5,
+        "source": "fixture",
+        "verifiedAt": "2026-10-01T00:00:00Z",
+        "validUntil": "2027-01-01T00:00:00Z"
+      }
+    }
+  ],
+  "promotions": [
+    {
+      "id": "weekend-shirt",
+      "businessId": "atelier-demo",
+      "title": "Un esencial, un nuevo precio",
+      "productIds": [
+        "atelier-1"
+      ],
+      "variantIds": [
+        "atelier-1-v0",
+        "atelier-1-v1",
+        "atelier-1-v2",
+        "atelier-1-v3",
+        "atelier-1-v4",
+        "atelier-1-v5"
+      ],
+      "priceCents": 10900,
+      "conditions": "Precio de ejemplo para las variantes de camisa de lino incluidas. No acumulable.",
+      "startsAt": "2026-10-01T00:00:00Z",
+      "endsAt": "2026-12-31T23:59:59Z",
+      "source": "fixture"
+    },
+    {
+      "id": "expired-example",
+      "businessId": "atelier-demo",
+      "title": "Promoción vencida",
+      "productIds": [
+        "atelier-2"
+      ],
+      "variantIds": [],
+      "priceCents": 100,
+      "conditions": "No debe mostrarse.",
+      "startsAt": "2020-01-01T00:00:00Z",
+      "endsAt": "2020-02-01T00:00:00Z",
+      "source": "fixture"
+    }
+  ],
+  "collections": [
+    {
+      "id": "everyday",
+      "businessId": "atelier-demo",
+      "name": "Esenciales de cada día",
+      "description": "Piezas que encuentran su lugar en tu rutina.",
+      "productIds": [
+        "atelier-1",
+        "atelier-2",
+        "atelier-5",
+        "atelier-13"
+      ],
+      "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=85"
+    },
+    {
+      "id": "spaces",
+      "businessId": "atelier-demo",
+      "name": "Tu espacio, tu pausa",
+      "description": "Diseño para los momentos que son solo tuyos.",
+      "productIds": [
+        "atelier-17",
+        "atelier-18",
+        "atelier-19",
+        "atelier-20"
+      ],
+      "image": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1000&q=85"
+    }
+  ]
+}

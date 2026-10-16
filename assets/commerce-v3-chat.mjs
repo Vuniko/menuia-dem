@@ -1,0 +1,5 @@
+// Explicit integration boundary. There is no request to the legacy /api/chat.
+export const assistantConnection=Object.freeze({status:'pending',endpoint:null,reason:'El vendedor comercial aún no está conectado.'});
+export function productConsultation(product,variant){return ('Sobre «'+product.name+'»'+(variant?' ('+Object.entries(variant.attributes).map(([k,v])=>k+': '+v).join(', ')+')':'')+': ¿qué información está confirmada?').slice(0,500);}
+export function boundedCommercialHistory(history){const entries=history.filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string');const pairs=[];for(let i=0;i<entries.length-1;i++)if(entries[i].role==='user'&&entries[i+1].role==='assistant'){pairs.push(...entries.slice(i,i+2).map(m=>({role:m.role,content:m.content.slice(0,700)})));i++;}return pairs.slice(-6);}
+export async function sendCommercialMessage(){throw Error(assistantConnection.reason);}
