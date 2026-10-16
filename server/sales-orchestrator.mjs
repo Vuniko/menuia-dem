@@ -1,5 +1,6 @@
 import {normalize} from '../assets/commerce-v3-model.mjs';
 import {salesContext,salesCandidates,salesReply} from './sales-agent.mjs';
+import {executeCommercialSkill} from './commercial-skills.mjs';
 
 /**
  * MenuIA Sales Orchestrator V2: trusted routing plan, no side effects.
@@ -31,9 +32,18 @@ export function createSalesPlan(c,message,history=[],productId=null,memory=null)
  const state=salesContext(c,message,history,productId,memory);
  const intent=classifySalesIntent(message,state);
  const eligible=salesCandidates(c,state,message);
- return {intent,skill:SKILLS[intent],state,eligible};
+ const skill=SKILLS[intent];
+ const requestedIds=(()=>{const names=c.products.filter(p=>normalize(message).includes(normalize(p.name)));if(names.length>=2)return names.map(p=>p.id);return Array.isArray(state.shownProductIds)&&/ambos|esas opciones|esos dos|los dos/.test(normalize(message))?state.shownProductIds.slice(0,2):[];})();
+ const skillResult=executeCommercialSkill(skill,{catalog:c,message,state,candidates:eligible,requestedIds});
+ return {intent,skill,state,eligible,skillResult};
 }
 export function respondWithSalesPlan(c,message,plan){
  if(!plan||!plan.state||!SKILLS[plan.intent])throw new TypeError('Plan comercial inválido');
- return {...salesReply(c,message,plan.state),provider:'catalog'};
+ const base=salesReply(c,message,plan.state);
+ if(plan.intent==='compare'&&plan.skillResult?.complete){
+  const items=plan.skillResult.items;
+  plan.state.shownProductIds=items.map(x=>x.productId);
+  return {...base,answer:(c.isDemonstration?'Demostración: precios y stock ficticios.\\n':'')+plan.skillResult.answer,products:items.map(x=>x.productId),variantIds:items.map(x=>x.variantId),memory:plan.state,provider:'catalog'};
+ }
+ return {...base,provider:'catalog'};
 }
