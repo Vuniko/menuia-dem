@@ -42,6 +42,16 @@ export function createSalesPlan(c,message,history=[],productId=null,memory=null)
 export function respondWithSalesPlan(c,message,plan){
  if(!plan||!plan.state||!SKILLS[plan.intent])throw new TypeError('Plan comercial inválido');
  const base=salesReply(c,message,plan.state);
+ // A nextAction is a UI hint, not a server-side cart mutation or checkout authorization.
+ // Only issue it for a uniquely identified, currently eligible published variant.
+ if(['cart_help','variant'].includes(plan.intent)&&plan.skillResult?.selectedVariantId){
+  const v=c.variants.find(v=>v.id===plan.skillResult.selectedVariantId);
+  const p=v&&c.products.find(p=>p.id===v.productId);
+  if(p&&v.stock?.quantity>0){
+   const hint={type:'open_product',productId:p.id,variantId:v.id};
+   return {...base,nextAction:hint,provider:'catalog'};
+  }
+ }
  if(plan.intent==='compare'&&plan.skillResult?.complete){
   const items=plan.skillResult.items;
   plan.state.shownProductIds=items.map(x=>x.productId);
