@@ -1,0 +1,59 @@
+name: MenuIA Gemini Preview Live Probe
+on:
+  push:
+    branches:
+      - test/menuia-gemini-live-preview-probe
+  pull_request:
+    branches:
+      - feature/menuia-gemini-natural-v2-2
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Probe V2.2 Preview without tokens or secrets
+        shell: bash
+        env:
+          PREVIEW: https://menuia-anw254un7-vuniko.vercel.app
+        run: |
+          set -euo pipefail
+          echo "Checking GET /api/commercial for published demo contract"
+          status=$(curl --silent --show-error --location --max-time 20 --output /tmp/menuia-get --write-out '%{http_code}' "$PREVIEW/api/commercial?slug=menuia-demo")
+          echo "GET response type: $(file --brief --mime-type /tmp/menuia-get)"
+          echo "GET HTTP status: $status"
+          if [ "$status" != 200 ]; then
+            echo "::warning::Preview GET is not publicly accessible (or has an HTTP error). No access protection will be bypassed."
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json
+          try:
+              with open('/tmp/menuia-get', encoding='utf8') as f: d=json.load(f)
+          except (ValueError, UnicodeError):
+              print('BLOCKED: Preview URL returned a non-JSON page, likely Vercel access protection or routing. No secrets will be used to bypass it.')
+              raise SystemExit(2)
+          assert d['business']['slug']=='menuia-demo'
+          print('Catalog verified; Gemini availability advertised:', bool(d['business']['assistant'].get('modelAvailable')))
+          PY
+          echo "Checking POST /api/commercial with non-sensitive demonstration question"
+          status=$(curl --silent --show-error --max-time 45 --output /tmp/menuia-post --write-out '%{http_code}' -X POST "$PREVIEW/api/commercial" -H 'Content-Type: application/json' -H "Origin: $PREVIEW" --data '{"slug":"menuia-demo","message":"Busco un regalo de tecnología por S/200 para mi hermano, le gusta la música","history":[]}')
+          echo "POST HTTP status: $status"
+          if [ "$status" != 200 ]; then
+            echo "::warning::Preview chat POST did not return HTTP 200."
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json
+          with open('/tmp/menuia-post',encoding='utf8') as f:d=json.load(f)
+          print('provider:',d.get('provider','missing'))
+          print('modelStatus:',d.get('modelStatus','not reported'))
+          print('modelErrorCode:',d.get('modelErrorCode','none'))
+          print('productCount:',len(d.get('products',[])))
+          print('answerPresent:',isinstance(d.get('answer'),str) and bool(d['answer'].strip()))
+          assert d.get('catalog',{}).get('business',{}).get('slug')=='menuia-demo'
+          assert d.get('provider')=='gemini' and d.get('modelStatus')=='connected','Preview is not currently returning a verified real Gemini response'
+          print('PASS: Real Gemini Preview answered this question; catalog tenant confirmed')
+          PY
