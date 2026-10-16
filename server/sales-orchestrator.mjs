@@ -10,7 +10,7 @@ import {executeCommercialSkill} from './commercial-skills.mjs';
 export function classifySalesIntent(message,state={}){
  const q=normalize(String(message||''));
  if(/\b(pago|garantia|devoluc|envio|delivery|entrega|descuento|promocion|pedido|reserva)\b/.test(q))return 'policy';
- if(/\b(compar|diferencia|versus|vs)\b/.test(q))return 'compare';
+ if(/compar|\b(diferencia|versus|vs)\b/.test(q))return 'compare';
  if(/\b(mas barato|muy caro|carisimo|economico|no me convence|no me gusta)\b/.test(q))return 'objection';
  if(/\b(me lo llevo|me quedo|agregar al carrito|comprarlo|lo quiero)\b/.test(q))return 'cart_help';
  if(/\b(talla|talle|color|stock|disponib|negro|negra|blanco|blanca|azul|rojo|roja|verde)\b/.test(q)&&state.productId)return 'variant';
