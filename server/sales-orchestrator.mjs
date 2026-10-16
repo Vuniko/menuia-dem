@@ -42,14 +42,6 @@ export function createSalesPlan(c,message,history=[],productId=null,memory=null)
 export function respondWithSalesPlan(c,message,plan){
  if(!plan||!plan.state||!SKILLS[plan.intent])throw new TypeError('Plan comercial inválido');
  const base=salesReply(c,message,plan.state);
- if(['variant','cart_help'].includes(plan.intent)&&plan.skillResult){
-  const result=plan.skillResult;
-  const selected=result.selectedVariantId?result.items.find(x=>x.variantId===result.selectedVariantId):null;
-  const ids=selected?[selected.productId]:[];
-  const variants=selected?[selected.variantId]:[];
-  if(selected){plan.state.productId=selected.productId;plan.state.shownProductIds=ids;}
-  return {...base,answer:(c.isDemonstration?'Demostración: precios y stock ficticios.\\n':'')+result.answer,products:ids,variantIds:variants,memory:plan.state,provider:'catalog'};
- }
  if(plan.intent==='compare'&&plan.skillResult?.complete){
   const items=plan.skillResult.items;
   plan.state.shownProductIds=items.map(x=>x.productId);
