@@ -10,7 +10,7 @@ import {executeCommercialSkill} from './commercial-skills.mjs';
 export function classifySalesIntent(message,state={}){
  const q=normalize(String(message||''));
  if(/\b(pago|garantia|devoluc|envio|delivery|entrega|descuento|promocion|pedido|reserva)\b/.test(q))return 'policy';
- if(/\b(compar|diferencia|versus|vs)\b/.test(q))return 'compare';
+ if(/compar|\b(diferencia|versus|vs)\b/.test(q))return 'compare';
  if(/\b(mas barato|muy caro|carisimo|economico|no me convence|no me gusta)\b/.test(q))return 'objection';
  if(/\b(me lo llevo|me quedo|agregar al carrito|comprarlo|lo quiero)\b/.test(q))return 'cart_help';
  if(/\b(talla|talle|color|stock|disponib|negro|negra|blanco|blanca|azul|rojo|roja|verde)\b/.test(q)&&state.productId)return 'variant';
@@ -31,15 +31,27 @@ export function createSalesPlan(c,message,history=[],productId=null,memory=null)
  if(!c||!c.business||!Array.isArray(c.products)||!Array.isArray(c.variants))throw new TypeError('Catálogo comercial inválido');
  const state=salesContext(c,message,history,productId,memory);
  const intent=classifySalesIntent(message,state);
- const eligible=salesCandidates(c,state,message);
  const skill=SKILLS[intent];
  const requestedIds=(()=>{const names=c.products.filter(p=>normalize(message).includes(normalize(p.name)));if(names.length>=2)return names.map(p=>p.id);return Array.isArray(state.shownProductIds)&&/ambos|esas opciones|esos dos|los dos/.test(normalize(message))?state.shownProductIds.slice(0,2):[];})();
+ // When comparing two named products, colors mentioned in their names are not a global filter.
+ const candidateState=skill==='compareProducts'&&requestedIds.length>=2?{...state,color:undefined,size:undefined}:state;
+ const eligible=salesCandidates(c,candidateState,message);
  const skillResult=executeCommercialSkill(skill,{catalog:c,message,state,candidates:eligible,requestedIds});
  return {intent,skill,state,eligible,skillResult};
 }
 export function respondWithSalesPlan(c,message,plan){
  if(!plan||!plan.state||!SKILLS[plan.intent])throw new TypeError('Plan comercial inválido');
  const base=salesReply(c,message,plan.state);
+ // A nextAction is a UI hint, not a server-side cart mutation or checkout authorization.
+ // Only issue it for a uniquely identified, currently eligible published variant.
+ if(['cart_help','variant'].includes(plan.intent)&&plan.skillResult?.selectedVariantId){
+  const v=c.variants.find(v=>v.id===plan.skillResult.selectedVariantId);
+  const p=v&&c.products.find(p=>p.id===v.productId);
+  if(p&&v.stock?.quantity>0){
+   const hint={type:'open_product',productId:p.id,variantId:v.id};
+   return {...base,nextAction:hint,provider:'catalog'};
+  }
+ }
  if(plan.intent==='compare'&&plan.skillResult?.complete){
   const items=plan.skillResult.items;
   plan.state.shownProductIds=items.map(x=>x.productId);

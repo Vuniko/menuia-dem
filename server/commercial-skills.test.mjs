@@ -31,7 +31,7 @@ test('comparison prints only prices and variant attributes of listed products',(
  assert.equal(result.complete,true);
  assert.match(result.answer,/Polo negro/);
  assert.match(result.answer,/Polo azul/);
- assert.match(result.answer,/S\/90/);
+ assert.match(result.answer,/S\/\s*90/);
  assert.doesNotMatch(result.answer,/Casaca/);
 });
 test('comparison never returns unlisted or exhausted variants',()=>{
