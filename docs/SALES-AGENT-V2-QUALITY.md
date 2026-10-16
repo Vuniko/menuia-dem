@@ -22,10 +22,12 @@ La intención, los IDs de Gemini y las preferencias no sustituyen la redacción 
 
 ## Pruebas
 
-289/289 pruebas Node aprobadas: 18 nuevas comprobaciones de calidad conversacional y regresiones anteriores. Incluyen regalo → importe corto → música; descubrimiento obligatorio aunque Gemini seleccione IDs; comparación y selección ordinal; ambigüedad; negación de color; cambio de rubro; rechazo → precio → importe; rechazo nombrado; estilo; cortesía con seguimiento; orden de tarjetas y memoria ajena/malformada.
+290/290 pruebas Node aprobadas: 19 nuevas comprobaciones de calidad conversacional y regresiones anteriores. Incluyen regalo → importe corto → música; descubrimiento obligatorio aunque Gemini seleccione IDs; comparación y selección ordinal; ambigüedad; negación de color; cambio de rubro; rechazo → precio → importe; rechazo nombrado; estilo; cortesía con seguimiento; orden de tarjetas y memoria ajena/malformada.
 
 Se actualizaron dos entradas de pruebas de contrato Gemini para especificar ropa: siguen comprobando precios del servidor, deduplicación y rechazo de IDs inventados, sin exigir que un regalo sin preferencias salte el descubrimiento.
 
 Comando: `node --test --test-isolation=none server/*.test.mjs training-lab/*.test.cjs`.
 
 Las conversaciones reales del Preview actualizado y su proveedor se registran en el PR #7 con SHA/despliegue. Esta revisión no constituye una medición de conversión ni una prueba con compradores reales. No se cambian Production, variables, claves, datos, SQL ni Supabase remoto.
+
+Preview fcceeb6: comprobación real de cinco turnos con proveedor Gemini — regalo sin idea → pregunta de presupuesto; «200» → pregunta por gustos; «Le gusta la música» → Audífonos S/159 y Parlante S/189; «Compara ambos» → esas mismas dos opciones; «Me quedo con el segundo» → Parlante y una sola tarjeta, sin confirmar pedido. Se completó además el reconocimiento contextual de todos los colores admitidos (no solo negro), con prueba de Camisa Arena → no Arena → Blanco y rechazo correcto de Gris no publicado. El resultado del Preview final está en el PR.

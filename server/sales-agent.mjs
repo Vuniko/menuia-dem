@@ -81,11 +81,11 @@ export function salesReply(c,message,state,{intent,productIds=[]}={}){
  if(/que es el algodon|que significa algodon|que es bluetooth|como elegir/.test(q))return response(/bluetooth/.test(q)?'Como orientación general, Bluetooth permite conectar dispositivos cercanos sin cable. Que un producto lo incluya debe constar en su ficha. ¿Qué equipo estás considerando?':'Como orientación general, conviene elegir según el uso, la comodidad y el presupuesto. Las características concretas solo puedo confirmarlas cuando figuran en la ficha. ¿Qué producto te interesa?');
  const candidates=salesCandidates(c,state,message);
  const compare=intent==='compare'||/compar|diferencia|\bversus\b|\bvs\b/.test(q);
- const follow=/este|esta|ese|esa|talla|talle|color|cuanto|precio|cuesta|stock|disponib|\ben negro\b|primero|primer|segundo|tercero|ultimo|me quedo|me llevo|lo quiero/.test(q);
+ const follow=/este|esta|ese|esa|talla|talle|color|cuanto|precio|cuesta|stock|disponib|\b(?:negro|negra|blanco|blanca|azul|gris|rojo|roja|verde|arena|beige)\b|primero|primer|segundo|tercero|ultimo|me quedo|me llevo|lo quiero/.test(q);
  const reference=c.products.find(p=>p.id===state.productId);
  const browsing=/catalogo|que tienen|que hay|productos|recomiend|muestrame/.test(q);
  if(!state.category&&!state.use&&!all.length&&!browsing&&!compare&&!reference){
-  if(state.budget===undefined)return ask((state.pending?'':('¡Hola! Soy el asesor virtual de '+c.business.name+'. '))+(state.recipient?'Para el regalo de tu '+state.recipient+', ':'')+'¿Con qué presupuesto te gustaría empezar?','budget');
+  if(state.budget===undefined)return ask((state.pending?'':('¡Hola! Soy el asesor virtual de '+c.business.name+'. '))+(state.recipient?'Para el regalo de tu '+state.recipient+', ¿con qué presupuesto te gustaría empezar?':'¿Con qué presupuesto te gustaría empezar?'),'budget');
   return ask('Con hasta '+money(state.budget)+(state.recipient?' para tu '+state.recipient:'')+', podemos afinar la búsqueda. '+(state.recipient?'¿Qué le gusta o qué tipo de producto tienes en mente?':'¿Qué tipo de producto buscas o para qué lo usarías?'),'interest');
  }
  if(follow&&!reference&&state.shownProductIds?.length>1&&!all.length)return ask('¿A cuál te refieres: '+state.shownProductIds.map(id=>c.products.find(p=>p.id===id)?.name).filter(Boolean).join(' o ')+'?','product');
