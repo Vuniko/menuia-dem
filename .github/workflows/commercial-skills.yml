@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - feature/menuia-commercial-skills-v2-validate
+      - feature/menuia-orchestrator-skills-runtime
   pull_request:
     branches:
       - feature/menuia-commercial-skills-v1
+      - feature/menuia-commercial-skills-v2-validate
   workflow_dispatch:
 
 permissions:
